@@ -1,0 +1,359 @@
+{
+  "AuthLayout": {
+    "heroTitle": "Secure authentication",
+    "heroTitleHighlight": "for your business",
+    "heroSubtitle": "A powerful OTP messaging platform built for businesses that demand reliability, speed, and global reach.",
+    "featureSecurityLabel": "Enterprise-grade security",
+    "featureSecurityDesc": "Bank-level encryption and 2FA",
+    "featureSpeedLabel": "Lightning-fast delivery",
+    "featureSpeedDesc": "Messages delivered in milliseconds",
+    "featureGlobalLabel": "Global reach",
+    "featureGlobalDesc": "Send to 190+ countries worldwide",
+    "trustFreeTrial": "Free trial credits included",
+    "trustNoCreditCard": "No credit card required",
+    "trustCancelAnytime": "Cancel anytime",
+    "copyright": "© {year} Nabda OTP. All rights reserved."
+  },
+  "LoginForm": {
+    "title": "Welcome back",
+    "subtitle": "Sign in to your Nabda account",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "forgotPassword": "Forgot password?",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign up",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "errorFillFields": "Please fill in all fields",
+    "errorLoginFailed": "Login failed"
+  },
+  "SignupForm": {
+    "title": "Create an account",
+    "subtitle": "Get started with Nabda Official",
+    "fullNameLabel": "Full name",
+    "fullNamePlaceholder": "John Doe",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "At least 8 characters",
+    "passwordHint": "Must be at least 8 characters",
+    "strengthWeak": "Weak",
+    "strengthMedium": "Medium",
+    "strengthStrong": "Strong",
+    "referralLabel": "Referral code",
+    "referralOptional": "(optional)",
+    "referralPlaceholder": "Enter referral code",
+    "createAccount": "Create account",
+    "creatingAccount": "Creating account…",
+    "termsText": "By signing up, you agree to our",
+    "termsOfService": "Terms of Service",
+    "and": "and",
+    "privacyPolicy": "Privacy Policy",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "errorFillFields": "Please fill in all required fields",
+    "errorPasswordLength": "Password must be at least 8 characters",
+    "errorRegistrationFailed": "Registration failed",
+    "successCreated": "Account created successfully!"
+  },
+  "ForgotPasswordForm": {
+    "title": "Forgot password?",
+    "subtitle": "Enter your email and we'll send you a reset link",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "Send reset link",
+    "sending": "Sending…",
+    "backToLogin": "Back to login",
+    "successTitle": "Check your email",
+    "successSubtitle": "We sent a password reset link to",
+    "errorFillEmail": "Please enter your email",
+    "errorSendFailed": "Failed to send reset email"
+  },
+  "ResetPasswordForm": {
+    "title": "Reset your password",
+    "subtitle": "Enter your new password below",
+    "newPasswordLabel": "New password",
+    "newPasswordPlaceholder": "At least 8 characters",
+    "passwordHint": "Must be at least 8 characters",
+    "confirmPasswordLabel": "Confirm password",
+    "confirmPasswordPlaceholder": "Repeat your password",
+    "resetPasswordBtn": "Reset password",
+    "resetting": "Resetting…",
+    "backToLogin": "Back to login",
+    "successTitle": "Password reset successful",
+    "successSubtitle": "You can now sign in with your new password",
+    "goToLogin": "Go to login",
+    "errorMissingToken": "Invalid or missing reset token",
+    "errorPasswordLength": "Password must be at least 8 characters",
+    "errorPasswordMatch": "Passwords do not match",
+    "errorResetFailed": "Failed to reset password"
+  },
+  "VerifyOtpPage": {
+    "title": "Two-factor authentication",
+    "subtitle": "Enter the 6-digit code sent to",
+    "verify": "Verify",
+    "verifying": "Verifying...",
+    "backToLogin": "Back to login",
+    "errorIncomplete": "Please enter the full 6-digit code",
+    "errorInvalidCode": "Invalid OTP code"
+  },
+  "Sidebar": {
+    "sectionGeneral": "General",
+    "navDashboard": "Dashboard",
+    "navReferral": "Referral",
+    "navApiDocs": "API Docs",
+    "navProjectDashboard": "Project Dashboard",
+    "navPricing": "Pricing",
+    "navCredits": "Credits & billing",
+    "navBilling": "Billing",
+    "navTransferBalance": "Transfer balance",
+    "navTransactionHistory": "Transaction history",
+    "navMessaging": "Messaging",
+    "navSendSms": "Send SMS",
+    "navSenderIds": "Sender IDs",
+    "navWhatsApp": "WhatsApp",
+    "navAccount": "Account",
+    "navSettings": "Settings",
+    "navWebhook": "Webhook",
+    "navAutoReply": "Auto Reply",
+    "navTemplates": "Templates",
+    "navInbox": "Inbox",
+    "navCampaigns": "Campaigns",
+    "navContacts": "Contacts",
+    "navAnalytics": "Analytics",
+    "navOverview": "Overview",
+    "navReports": "Reports",
+    "navFraudProtection": "Fraud Protection",
+    "navProjectSettings": "Project Settings",
+    "navSettingsGeneral": "General",
+    "navTeamMembers": "Team members",
+    "navApiKeys": "API Keys",
+    "navApiDocumentation": "API Documentation"
+  },
+  "settings": {
+    "general": {
+      "pageTitle": "General Settings",
+      "pageSubtitle": "Manage your project information and danger zone",
+      "loading": "Loading project...",
+      "copied": "Copied to clipboard",
+      "copyFailed": "Failed to copy",
+      "nonOwnerNotice": "Only the project owner can manage advanced settings. Contact the owner if you need to make changes.",
+      "info": {
+        "title": "Project Information",
+        "subtitle": "Basic details about this project",
+        "name": "Project Name",
+        "nameHelper": "Project name cannot be changed at this time.",
+        "id": "Project ID",
+        "idHelper": "Use this ID when integrating with our API.",
+        "created": "Created",
+        "status": "Status",
+        "statusActive": "Active",
+        "statusInactive": "Inactive"
+      },
+      "danger": {
+        "title": "Danger Zone",
+        "subtitle": "Irreversible and destructive actions",
+        "deleteTitle": "Delete this project",
+        "deleteDescription": "Permanently delete this project and all associated data. This action cannot be undone.",
+        "deleteButton": "Delete Project"
+      },
+      "deleteDialog": {
+        "title": "Delete project?",
+        "subtitle": "This action cannot be undone",
+        "warning": "You are about to permanently delete <bold>{name}</bold>. The following data will be lost:",
+        "items": {
+          "apiKeys": "All API keys",
+          "members": "All team members and invitations",
+          "messages": "All messages and analytics history",
+          "billing": "All billing and transaction records"
+        },
+        "typeToConfirm": "Type <code>{name}</code> to confirm:",
+        "cancel": "Cancel",
+        "confirm": "Delete Project",
+        "deleting": "Deleting...",
+        "success": "Project \"{name}\" was deleted",
+        "error": "Failed to delete project. Please try again."
+      }
+    }
+  },
+  "waba": {
+    "pageTitle": "WhatsApp Business",
+    "pageSubtitle": "Connect and manage your WhatsApp Business accounts",
+    "loadError": "Failed to load WhatsApp connection status. Please try again.",
+    "retry": "Try Again",
+    "connectSuccess": "WhatsApp account connected successfully!",
+    "connectError": "Connection failed. Please try again.",
+    "empty": {
+      "title": "Connect WhatsApp Business",
+      "subtitle": "Link your WhatsApp Business Account to start sending OTPs and notifications to your users through Meta's official API.",
+      "features": {
+        "official": "Official Meta WhatsApp Cloud API integration",
+        "multiNumber": "Multiple phone numbers per business account",
+        "highVolume": "Reliable high-volume OTP delivery"
+      },
+      "connectButton": "Connect WhatsApp",
+      "connecting": "Redirecting to Meta...",
+      "connectError": "Couldn't start the connection flow. Please try again.",
+      "helperNote": "You'll be redirected to Meta to authorize the connection. Make sure you have a verified WhatsApp Business Account."
+    },
+    "connected": {
+      "title": "Connected Accounts",
+      "subtitle": "{count, plural, =0 {No accounts connected} =1 {# account connected} other {# accounts connected}}",
+      "addAccount": "Add Account"
+    },
+    "account": {
+      "connected": "Connected",
+      "connectedOn": "Connected on",
+      "unnamedBusiness": "WhatsApp Business",
+      "wabaIdLabel": "WABA ID",
+      "phoneNumbersLabel": "Phone Numbers",
+      "noPhoneNumbers": "No phone numbers found for this account.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "copyFailed": "Failed to copy"
+    },
+    "phone": {
+      "noNumber": "No number",
+      "verifiedAs": "Verified as",
+      "phoneIdLabel": "Phone Number ID",
+      "copy": "Copy",
+      "copied": "Copied",
+      "copyNumber": "Copy phone number",
+      "copyFailed": "Failed to copy",
+      "quality": {
+        "green": "Excellent",
+        "yellow": "Medium",
+        "red": "Low",
+        "unknown": "Unknown"
+      }
+    },
+    "sidebar": {
+      "nextSteps": {
+        "title": "Next Steps",
+        "description": "After connecting your WhatsApp account, you'll need to create approved message templates before you can send OTPs."
+      },
+      "links": {
+        "templates": "Manage Templates",
+        "apiKeys": "View API Keys"
+      },
+      "docs": {
+        "title": "Need Help?",
+        "description": "Check our integration guide for step-by-step instructions on setting up your WhatsApp Business account with Meta."
+      }
+    }
+  },
+  "templates": {
+    "pageTitle": "Message Templates",
+    "pageSubtitle": "Create and manage WhatsApp message templates for sending OTPs",
+    "newTemplate": "New Template",
+    "loadError": "Failed to load templates. Please try again.",
+    "retry": "Try Again",
+    "status": {
+      "draft": "Draft",
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "paused": "Paused",
+      "disabled": "Disabled",
+      "in_appeal": "In Appeal"
+    },
+    "noWaba": {
+      "title": "Connect WhatsApp first",
+      "description": "Before you can create message templates, you need to connect a WhatsApp Business account to this project.",
+      "connectButton": "Connect WhatsApp"
+    },
+    "empty": {
+      "title": "No templates yet",
+      "description": "Create your first message template to start sending OTPs and notifications through WhatsApp.",
+      "createButton": "Create Template"
+    },
+    "card": {
+      "refresh": "Refresh",
+      "refreshTooltip": "Check status with Meta",
+      "refreshSuccess": "Status updated",
+      "refreshError": "Failed to refresh status",
+      "deleteTooltip": "Delete template",
+      "created": "Created",
+      "rejectedReason": "Rejected reason",
+      "category": {
+        "authentication": "Authentication",
+        "utility": "Utility",
+        "marketing": "Marketing"
+      }
+    },
+    "preview": {
+      "title": "Live Preview",
+      "emptyHint": "Your message will appear here as you type",
+      "variableHint": "Variables like {'{{1}}'} will be replaced with real values when the message is sent."
+    },
+    "createDialog": {
+      "title": "Create new template",
+      "subtitle": "Choose a starting point",
+      "builderTitle": "Build your template",
+      "builderSubtitle": "Customize the content and submit for Meta review",
+      "recommended": "Recommended",
+      "back": "Back",
+      "cancel": "Cancel",
+      "submit": "Submit to Meta",
+      "submitting": "Submitting...",
+      "submitInfo": "Once submitted, Meta usually reviews templates within a few hours.",
+      "submitSuccess": "Template \"{name}\" submitted to Meta for review",
+      "submitError": "Failed to submit template. Please check the content and try again.",
+      "variableCount": "{count, plural, =1 {1 variable used} other {# variables used}}",
+      "presets": {
+        "otp_basic": {
+          "title": "Basic OTP",
+          "description": "Simple verification code message with sender code as text. Best for most OTP use cases."
+        },
+        "otp_with_button": {
+          "title": "OTP with Copy Button",
+          "description": "Verification code with a one-tap copy button. Recommended for the best user experience."
+        },
+        "blank": {
+          "title": "Start from scratch",
+          "description": "Build a custom template with full control over every component."
+        }
+      },
+      "fields": {
+        "name": "Template name",
+        "nameHelper": "Lowercase letters, numbers, and underscores only (e.g. auth_otp_basic). Cannot be changed later.",
+        "category": "Category",
+        "categories": {
+          "authentication": "Auth",
+          "utility": "Utility",
+          "marketing": "Marketing"
+        },
+        "language": "Language",
+        "header": "Header text",
+        "headerHelper": "Optional. Bold text at the top of the message (max 60 chars).",
+        "headerPlaceholder": "Hello {{1}}!",
+        "body": "Body",
+        "bodyHelper": "The main message content. Use {'{{1}}'}, {'{{2}}'} for variables (max 1024 chars).",
+        "bodyPlaceholder": "Your verification code is {{1}}. Do not share this code with anyone.",
+        "footer": "Footer text",
+        "footerHelper": "Optional. Small disclaimer text below the message (max 60 chars).",
+        "footerPlaceholder": "This code expires in 10 minutes.",
+        "copyCodeButton": "Copy Code button",
+        "copyCodeHelper": "Adds a one-tap button that copies the OTP code. Highly recommended for AUTH templates."
+      },
+      "errors": {
+        "buttonTextRequired": "Button text is required"
+      }
+    },
+    "deleteDialog": {
+      "title": "Delete template?",
+      "subtitle": "This action cannot be undone",
+      "warning": "You are about to permanently delete <bold>{name}</bold>. This will remove it from both your dashboard and Meta. Any code using this template will stop working.",
+      "cancel": "Cancel",
+      "confirm": "Delete Template",
+      "deleting": "Deleting...",
+      "success": "Template \"{name}\" deleted",
+      "error": "Failed to delete template. Please try again."
+    }
+  }
+}

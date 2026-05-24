@@ -1,0 +1,250 @@
+{
+  "AuthLayout": {
+    "heroTitle": "مصادقة آمنة",
+    "heroTitleHighlight": "لعملك التجاري",
+    "heroSubtitle": "منصة رسائل OTP قوية مصممة للشركات التي تتطلب الموثوقية والسرعة والوصول العالمي.",
+    "featureSecurityLabel": "أمان على مستوى المؤسسات",
+    "featureSecurityDesc": "تشفير بمستوى بنكي ومصادقة ثنائية",
+    "featureSpeedLabel": "تسليم فائق السرعة",
+    "featureSpeedDesc": "الرسائل تُسلَّم في أجزاء من الثانية",
+    "featureGlobalLabel": "وصول عالمي",
+    "featureGlobalDesc": "أرسل إلى أكثر من 190 دولة حول العالم",
+    "trustFreeTrial": "رصيد تجريبي مجاني",
+    "trustNoCreditCard": "لا حاجة لبطاقة ائتمانية",
+    "trustCancelAnytime": "إلغاء في أي وقت",
+    "copyright": "© {year} Nabda OTP. جميع الحقوق محفوظة."
+  },
+  "LoginForm": {
+    "title": "مرحباً بعودتك",
+    "subtitle": "سجّل الدخول إلى حساب Nabda الخاص بك",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "signIn": "تسجيل الدخول",
+    "signingIn": "جارٍ تسجيل الدخول…",
+    "noAccount": "ليس لديك حساب؟",
+    "signUp": "إنشاء حساب",
+    "showPassword": "إظهار كلمة المرور",
+    "hidePassword": "إخفاء كلمة المرور",
+    "errorFillFields": "يرجى ملء جميع الحقول",
+    "errorLoginFailed": "فشل تسجيل الدخول"
+  },
+  "SignupForm": {
+    "title": "إنشاء حساب جديد",
+    "subtitle": "ابدأ مع Nabda Official",
+    "fullNameLabel": "الاسم الكامل",
+    "fullNamePlaceholder": "محمد أحمد",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "كلمة المرور",
+    "passwordPlaceholder": "8 أحرف على الأقل",
+    "passwordHint": "يجب أن تكون 8 أحرف على الأقل",
+    "strengthWeak": "ضعيفة",
+    "strengthMedium": "متوسطة",
+    "strengthStrong": "قوية",
+    "referralLabel": "رمز الإحالة",
+    "referralOptional": "(اختياري)",
+    "referralPlaceholder": "أدخل رمز الإحالة",
+    "createAccount": "إنشاء حساب",
+    "creatingAccount": "جارٍ إنشاء الحساب…",
+    "termsText": "بالتسجيل، فإنك توافق على",
+    "termsOfService": "شروط الخدمة",
+    "and": "و",
+    "privacyPolicy": "سياسة الخصوصية",
+    "haveAccount": "لديك حساب بالفعل؟",
+    "signIn": "تسجيل الدخول",
+    "showPassword": "إظهار كلمة المرور",
+    "hidePassword": "إخفاء كلمة المرور",
+    "errorFillFields": "يرجى ملء جميع الحقول المطلوبة",
+    "errorPasswordLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+    "errorRegistrationFailed": "فشل التسجيل",
+    "successCreated": "تم إنشاء الحساب بنجاح!"
+  },
+  "ForgotPasswordForm": {
+    "title": "نسيت كلمة المرور؟",
+    "subtitle": "أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "you@example.com",
+    "sendResetLink": "إرسال رابط إعادة التعيين",
+    "sending": "جارٍ الإرسال…",
+    "backToLogin": "العودة إلى تسجيل الدخول",
+    "successTitle": "تحقق من بريدك الإلكتروني",
+    "successSubtitle": "أرسلنا رابط إعادة تعيين كلمة المرور إلى",
+    "errorFillEmail": "يرجى إدخال بريدك الإلكتروني",
+    "errorSendFailed": "فشل إرسال رسالة إعادة التعيين"
+  },
+  "ResetPasswordForm": {
+    "title": "إعادة تعيين كلمة المرور",
+    "subtitle": "أدخل كلمة المرور الجديدة أدناه",
+    "newPasswordLabel": "كلمة المرور الجديدة",
+    "newPasswordPlaceholder": "8 أحرف على الأقل",
+    "passwordHint": "يجب أن تكون 8 أحرف على الأقل",
+    "confirmPasswordLabel": "تأكيد كلمة المرور",
+    "confirmPasswordPlaceholder": "أعد إدخال كلمة المرور",
+    "resetPasswordBtn": "إعادة تعيين كلمة المرور",
+    "resetting": "جارٍ إعادة التعيين…",
+    "backToLogin": "العودة إلى تسجيل الدخول",
+    "successTitle": "تمت إعادة التعيين بنجاح",
+    "successSubtitle": "يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة",
+    "goToLogin": "الذهاب إلى تسجيل الدخول",
+    "errorMissingToken": "رمز إعادة التعيين غير صالح أو مفقود",
+    "errorPasswordLength": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+    "errorPasswordMatch": "كلمتا المرور غير متطابقتين",
+    "errorResetFailed": "فشلت إعادة تعيين كلمة المرور"
+  },
+  "VerifyOtpPage": {
+    "title": "المصادقة الثنائية",
+    "subtitle": "أدخل الرمز المكون من 6 أرقام المرسل إلى",
+    "verify": "تحقق",
+    "verifying": "جارٍ التحقق...",
+    "backToLogin": "العودة إلى تسجيل الدخول",
+    "errorIncomplete": "يرجى إدخال الرمز المكوّن من 6 أرقام كاملاً",
+    "errorInvalidCode": "رمز OTP غير صالح"
+  },
+  "Sidebar": {
+    "sectionGeneral": "عام",
+    "navDashboard": "لوحة التحكم",
+    "navReferral": "الإحالة",
+    "navApiDocs": "توثيق API",
+    "navProjectDashboard": "لوحة المشروع",
+    "navPricing": "الأسعار",
+    "navCredits": "الرصيد والفواتير",
+    "navBilling": "الفواتير",
+    "navTransferBalance": "تحويل الرصيد",
+    "navTransactionHistory": "سجل المعاملات",
+    "navMessaging": "الرسائل",
+    "navSendSms": "إرسال رسالة SMS",
+    "navSenderIds": "معرّفات المرسل",
+    "navWhatsApp": "واتساب",
+    "navAccount": "الحساب",
+    "navSettings": "الإعدادات",
+    "navWebhook": "Webhook",
+    "navAutoReply": "الرد التلقائي",
+    "navTemplates": "القوالب",
+    "navInbox": "البريد الوارد",
+    "navCampaigns": "الحملات",
+    "navContacts": "جهات الاتصال",
+    "navAnalytics": "التحليلات",
+    "navOverview": "نظرة عامة",
+    "navReports": "التقارير",
+    "navFraudProtection": "الحماية من الاحتيال",
+    "navProjectSettings": "إعدادات المشروع",
+    "navSettingsGeneral": "عام",
+    "navTeamMembers": "أعضاء الفريق",
+    "navApiKeys": "مفاتيح API",
+    "navApiDocumentation": "توثيق API"
+  },
+  "settings": {
+    "general": {
+      "pageTitle": "الإعدادات العامة",
+      "pageSubtitle": "إدارة معلومات المشروع والمنطقة الحساسة",
+      "loading": "جارٍ تحميل المشروع...",
+      "copied": "تم النسخ",
+      "copyFailed": "فشل النسخ",
+      "nonOwnerNotice": "فقط مالك المشروع يمكنه إدارة الإعدادات المتقدمة. تواصل مع المالك إذا كنت تحتاج إجراء أي تعديل.",
+      "info": {
+        "title": "معلومات المشروع",
+        "subtitle": "التفاصيل الأساسية لهذا المشروع",
+        "name": "اسم المشروع",
+        "nameHelper": "لا يمكن تغيير اسم المشروع حالياً.",
+        "id": "معرّف المشروع",
+        "idHelper": "استخدم هذا المعرّف عند الربط مع الـ API الخاص بنا.",
+        "created": "تاريخ الإنشاء",
+        "status": "الحالة",
+        "statusActive": "نشط",
+        "statusInactive": "غير نشط"
+      },
+      "danger": {
+        "title": "المنطقة الحساسة",
+        "subtitle": "إجراءات لا يمكن التراجع عنها",
+        "deleteTitle": "حذف هذا المشروع",
+        "deleteDescription": "احذف هذا المشروع وكل البيانات المرتبطة به نهائياً. لا يمكن التراجع عن هذا الإجراء.",
+        "deleteButton": "حذف المشروع"
+      },
+      "deleteDialog": {
+        "title": "حذف المشروع؟",
+        "subtitle": "لا يمكن التراجع عن هذا الإجراء",
+        "warning": "أنت على وشك حذف <bold>{name}</bold> نهائياً. سيتم فقدان البيانات التالية:",
+        "items": {
+          "apiKeys": "جميع مفاتيح الـ API",
+          "members": "جميع أعضاء الفريق والدعوات",
+          "messages": "جميع الرسائل وسجل التحليلات",
+          "billing": "جميع سجلات الفواتير والمعاملات"
+        },
+        "typeToConfirm": "اكتب <code>{name}</code> للتأكيد:",
+        "cancel": "إلغاء",
+        "confirm": "حذف المشروع",
+        "deleting": "جارٍ الحذف...",
+        "success": "تم حذف المشروع \"{name}\"",
+        "error": "فشل حذف المشروع. حاول مرة أخرى."
+      }
+    }
+  },
+  "waba": {
+    "pageTitle": "واتساب للأعمال",
+    "pageSubtitle": "اربط حسابات واتساب للأعمال وقم بإدارتها",
+    "loadError": "تعذّر تحميل حالة الاتصال بواتساب. حاول مرة أخرى.",
+    "retry": "إعادة المحاولة",
+    "connectSuccess": "تم ربط حساب واتساب بنجاح!",
+    "connectError": "فشل الاتصال. حاول مرة أخرى.",
+    "empty": {
+      "title": "اربط حساب واتساب للأعمال",
+      "subtitle": "اربط حساب واتساب للأعمال الخاص بك لتبدأ إرسال أكواد التحقق والإشعارات لمستخدميك عبر الـ API الرسمي من Meta.",
+      "features": {
+        "official": "تكامل رسمي مع Meta WhatsApp Cloud API",
+        "multiNumber": "أرقام هواتف متعددة لكل حساب أعمال",
+        "highVolume": "إرسال موثوق لكميات كبيرة من أكواد التحقق"
+      },
+      "connectButton": "ربط واتساب",
+      "connecting": "جارٍ التحويل إلى Meta...",
+      "connectError": "تعذّر بدء عملية الربط. حاول مرة أخرى.",
+      "helperNote": "سيتم تحويلك إلى Meta لتفويض الاتصال. تأكد من امتلاكك حساب واتساب أعمال موثّق."
+    },
+    "connected": {
+      "title": "الحسابات المتصلة",
+      "subtitle": "{count, plural, =0 {لا توجد حسابات متصلة} =1 {حساب واحد متصل} =2 {حسابان متصلان} other {# حسابات متصلة}}",
+      "addAccount": "إضافة حساب"
+    },
+    "account": {
+      "connected": "متصل",
+      "connectedOn": "تم الربط في",
+      "unnamedBusiness": "واتساب للأعمال",
+      "wabaIdLabel": "معرّف WABA",
+      "phoneNumbersLabel": "أرقام الهواتف",
+      "noPhoneNumbers": "لا توجد أرقام هواتف لهذا الحساب.",
+      "copy": "نسخ",
+      "copied": "تم النسخ",
+      "copyFailed": "فشل النسخ"
+    },
+    "phone": {
+      "noNumber": "بدون رقم",
+      "verifiedAs": "موثّق باسم",
+      "phoneIdLabel": "معرّف رقم الهاتف",
+      "copy": "نسخ",
+      "copied": "تم النسخ",
+      "copyNumber": "نسخ رقم الهاتف",
+      "copyFailed": "فشل النسخ",
+      "quality": {
+        "green": "ممتاز",
+        "yellow": "متوسط",
+        "red": "منخفض",
+        "unknown": "غير معروف"
+      }
+    },
+    "sidebar": {
+      "nextSteps": {
+        "title": "الخطوات التالية",
+        "description": "بعد ربط حساب واتساب الخاص بك، ستحتاج لإنشاء قوالب رسائل معتمدة قبل أن تتمكن من إرسال أكواد التحقق."
+      },
+      "links": {
+        "templates": "إدارة القوالب",
+        "apiKeys": "عرض مفاتيح الـ API"
+      },
+      "docs": {
+        "title": "تحتاج مساعدة؟",
+        "description": "اطّلع على دليل التكامل للحصول على تعليمات خطوة بخطوة لإعداد حساب واتساب للأعمال مع Meta."
+      }
+    }
+  }
+}
