@@ -104,7 +104,7 @@ export function CreateProjectDialog({
           </div>
           <Button
             onClick={handleClose}
-            className="w-8 h-8 flex bg-gray-500 items-center justify-center rounded-md hover:bg-muted cursor-pointer text-muted-foreground"
+            className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-muted cursor-pointer text-white hover:text-red-700"
             disabled={loading}
           >
             <X size={18} />

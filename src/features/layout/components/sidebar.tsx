@@ -1,20 +1,35 @@
 "use client";
 
 import {
-  Home, Gift, BookOpen, LayoutDashboard, Tag,
-  CreditCard, Receipt, ArrowLeftRight, History,
-  Send, MessageCircle, FileText,
-  Megaphone, Users, BarChart2, PieChart,
-  FileBarChart, SlidersHorizontal, Settings2,
-  UsersRound, FileCode, KeyRound,
+  BarChart2,
+  BookOpen,
+  CreditCard,
+  FileBarChart,
+  FileCode,
+  FileText,
+  Gift,
+  History,
+  Home,
+  KeyRound,
+  LayoutDashboard,
+  Megaphone,
+  MessageCircle,
+  PieChart,
+  Receipt,
+  Send,
+  Settings2,
+  SlidersHorizontal,
+  Tag,
+  Users,
+  UsersRound
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { NavItem } from "./nav-item";
-import { BalanceWidget } from "./balance-widget";
-import { ProjectSelector } from "./project-selector";
-import { UserMenu } from "./user-menu";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { BalanceWidget } from "./balance-widget";
+import { NavItem } from "./nav-item";
+import { ProjectSelector } from "./project-selector";
+import { UserMenu } from "./user-menu";
 
 interface SidebarProps {
   mode: "home" | "project";
@@ -123,13 +138,13 @@ export function Sidebar({
                 depth={1}
                 onNavigate={onNavigate}
               />
-              <NavItem
+              {/* <NavItem
                 icon={ArrowLeftRight}
                 label={t("navTransferBalance")}
                 href={p("/credits/transfer")}
                 depth={1}
                 onNavigate={onNavigate}
-              />
+              /> */}
               <NavItem
                 icon={History}
                 label={t("navTransactionHistory")}

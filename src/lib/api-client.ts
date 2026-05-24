@@ -1,5 +1,5 @@
 const BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL ?? "http://212.47.72.112:8001/api/v1";
+    process.env.NEXT_PUBLIC_API_URL ?? "http://connect.nabdaotp.com/api-docs";
 
 // ── Token lifetimes ──
 // Access token cookie: 30 days (backend access token itself may expire sooner;

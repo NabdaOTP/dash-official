@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import { createCheckoutSession } from "@/features/billing/services/billing-service";
 import { AmountPicker } from "./amount-picker";
+import { CreditEstimator } from "./credit-estimator";
 import { CheckoutSummary } from "./checkout-summary";
 
 const MIN_AMOUNT = 5;
@@ -18,7 +19,8 @@ export function PricingForm() {
     const [customAmount, setCustomAmount] = useState<string>("");
     const [loading, setLoading] = useState(false);
 
-    const finalAmount = customAmount.trim() !== "" ? parseFloat(customAmount) : selectedAmount;
+    const finalAmount =
+        customAmount.trim() !== "" ? parseFloat(customAmount) : selectedAmount;
 
     const handleSelectPreset = (amount: number) => {
         setSelectedAmount(amount);
@@ -55,10 +57,16 @@ export function PricingForm() {
         }
     };
 
+    // Pass a safe number to the estimator (0 if invalid)
+    const estimatorAmount =
+        isNaN(finalAmount) || finalAmount < 0 ? 0 : finalAmount;
+
     return (
         <div className="max-w-3xl mx-auto px-6 py-8">
             <div className="mb-8">
-                <h1 className="text-2xl font-semibold text-foreground mb-2">Add Credits</h1>
+                <h1 className="text-2xl font-semibold text-foreground mb-2">
+                    Add Credits
+                </h1>
                 <p className="text-sm text-muted-foreground">
                     Top up your project balance to send messages and use Nabda services
                 </p>
@@ -71,6 +79,8 @@ export function PricingForm() {
                 onSelectPreset={handleSelectPreset}
                 onCustomChange={handleCustomChange}
             />
+
+            <CreditEstimator amount={estimatorAmount} />
 
             <CheckoutSummary
                 finalAmount={finalAmount}

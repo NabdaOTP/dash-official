@@ -70,3 +70,29 @@ export interface CheckoutResponse {
         userId?: string;
     };
 }
+
+export type MessageCategory = "authentication" | "utility" | "marketing" | "AUTHENTICATION" | "UTILITY" | "MARKETING";
+
+export interface PricingSettings {
+  markupPercent: number;
+  fixedFeePerMessage: number;
+  minChargePerMessage: number;
+  roundingMode: "nearest" | "up" | "down";
+  currency?: string;
+}
+
+export interface CalculatorRequest {
+  category: MessageCategory;
+  country: string;       
+  messageCount: number;
+}
+
+export interface CalculatorResult {
+  currency: string;
+  messageCount: number;
+  category: MessageCategory;
+  baseCostPerMessage: number;
+  finalCostPerMessage: number;
+  estimatedTotalCost: number;
+  pricing: PricingSettings;
+}

@@ -1,6 +1,6 @@
 import { api } from "@/lib/api-client";
 import type {
-    ProjectBalance, Transaction, TransactionsResponse,
+    ProjectBalance, Transaction, TransactionsResponse, CalculatorRequest, CalculatorResult,
     CheckoutRequest, CheckoutResponse,
 } from "../types";
 
@@ -35,5 +35,15 @@ export async function createCheckoutSession(
     return api.post<CheckoutResponse>(
         `/billing/checkout?projectId=${projectId}`,
         { amount } satisfies CheckoutRequest
+    );
+}
+
+export async function calculateCost(
+    projectId: string,
+    data: CalculatorRequest
+): Promise<CalculatorResult> {
+    return api.post<CalculatorResult>(
+        `/billing/calculator?projectId=${encodeURIComponent(projectId)}`,
+        data
     );
 }
