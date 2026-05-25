@@ -45,6 +45,15 @@ export function useWabaConnect({ projectId, onSuccess }: UseWabaConnectOptions) 
 
             const obj = payload as Record<string, unknown>;
             if (obj.type !== "WA_EMBEDDED_SIGNUP") return;
+            const eventName =
+                typeof obj.event === "string" ? obj.event : undefined;
+            if (
+                eventName !== "FINISH" &&
+                eventName !== "FINISH_ONLY_WABA" &&
+                eventName !== "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING"
+            ) {
+                return;
+            }
 
             const data = (obj.data || {}) as Record<string, unknown>;
             const wabaId =
