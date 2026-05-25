@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import {
     Key, Plus, Loader2, Trash2, ShieldOff, Calendar, Clock,
+    Eye, EyeOff, Copy, Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getProjectApiKeys } from "@/features/projects/services/project-service";
@@ -35,6 +36,24 @@ function formatDateTime(dateStr: string | null) {
     return formatDate(dateStr);
 }
 
+/**
+ * Mask an API key for display.
+ * Shows the prefix (sk_live_) plus first 4 and last 4 chars,
+ * with dots in between.
+ */
+function maskKey(key: string): string {
+    if (!key) return "";
+    // Try to detect prefix (sk_live_, sk_test_, etc.)
+    const prefixMatch = key.match(/^([a-z]+_[a-z]+_)/);
+    const prefix = prefixMatch ? prefixMatch[1] : "";
+    const body = key.slice(prefix.length);
+
+    if (body.length <= 8) {
+        return prefix + "•".repeat(8);
+    }
+    return prefix + body.slice(0, 4) + "•".repeat(16) + body.slice(-4);
+}
+
 export function ApiKeysList() {
     const params = useParams();
     const projectId = params.projectId as string;
@@ -43,6 +62,10 @@ export function ApiKeysList() {
     const [loading, setLoading] = useState(true);
     const [showCreate, setShowCreate] = useState(false);
     const [keyToRevoke, setKeyToRevoke] = useState<ProjectApiKey | null>(null);
+
+    // Track which keys are revealed and which were just copied
+    const [revealedKeys, setRevealedKeys] = useState<Set<string>>(new Set());
+    const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
     const fetchKeys = useCallback(async () => {
         if (!projectId) return;
@@ -65,7 +88,6 @@ export function ApiKeysList() {
         })()
     }, [fetchKeys]);
 
-
     const handleCreated = () => {
         setShowCreate(false);
         fetchKeys();
@@ -74,6 +96,33 @@ export function ApiKeysList() {
     const handleRevoked = () => {
         setKeyToRevoke(null);
         fetchKeys();
+    };
+
+    const toggleReveal = (keyId: string) => {
+        setRevealedKeys((prev) => {
+            const next = new Set(prev);
+            if (next.has(keyId)) {
+                next.delete(keyId);
+            } else {
+                next.add(keyId);
+            }
+            return next;
+        });
+    };
+
+    const handleCopy = async (key: ProjectApiKey) => {
+        if (!key.rawKey) {
+            toast.error("Key value is not available");
+            return;
+        }
+        try {
+            await navigator.clipboard.writeText(key.rawKey);
+            setCopiedKey(key.id);
+            toast.success("API key copied");
+            setTimeout(() => setCopiedKey(null), 2000);
+        } catch {
+            toast.error("Failed to copy");
+        }
     };
 
     const activeKeys = keys.filter((k) => k.isActive);
@@ -137,45 +186,93 @@ export function ApiKeysList() {
                         {/* Active keys */}
                         {activeKeys.length > 0 && (
                             <div className="divide-y divide-border/60">
-                                {activeKeys.map((key) => (
-                                    <div
-                                        key={key.id}
-                                        className="flex items-center gap-3 p-4 sm:p-5 hover:bg-muted/30 transition-colors"
-                                    >
-                                        <div className="w-9 h-9 rounded-lg bg-[#EDE9FE] flex items-center justify-center shrink-0">
-                                            <Key size={15} className="text-[#7C3AED]" />
-                                        </div>
+                                {activeKeys.map((key) => {
+                                    const isRevealed = revealedKeys.has(key.id);
+                                    const isCopied = copiedKey === key.id;
+                                    const displayKey = isRevealed
+                                        ? key.rawKey
+                                        : maskKey(key.rawKey ?? "");
 
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <p className="text-[13.5px] font-semibold text-foreground truncate">
-                                                    {key.name}
-                                                </p>
-                                                <span className="inline-flex items-center text-[10px] font-semibold bg-green-50 text-green-600 px-1.5 py-0.5 rounded-full shrink-0">
-                                                    ACTIVE
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                                                <span className="flex items-center gap-1">
-                                                    <Calendar size={11} />
-                                                    Created {formatDate(key.createdAt)}
-                                                </span>
-                                                <span className="flex items-center gap-1">
-                                                    <Clock size={11} />
-                                                    {formatDateTime(key.lastUsedAt)}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <button
-                                            onClick={() => setKeyToRevoke(key)}
-                                            className="shrink-0 w-9 h-9 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center cursor-pointer transition-colors"
-                                            aria-label={`Revoke ${key.name}`}
+                                    return (
+                                        <div
+                                            key={key.id}
+                                            className="p-4 sm:p-5 hover:bg-muted/30 transition-colors"
                                         >
-                                            <Trash2 size={15} />
-                                        </button>
-                                    </div>
-                                ))}
+                                            {/* Top row: name + status + delete */}
+                                            <div className="flex items-center gap-3 mb-2.5">
+                                                <div className="w-9 h-9 rounded-lg bg-[#EDE9FE] flex items-center justify-center shrink-0">
+                                                    <Key size={15} className="text-[#7C3AED]" />
+                                                </div>
+
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <p className="text-[13.5px] font-semibold text-foreground truncate">
+                                                            {key.name}
+                                                        </p>
+                                                        <span className="inline-flex items-center text-[10px] font-semibold bg-green-50 text-green-600 px-1.5 py-0.5 rounded-full shrink-0">
+                                                            ACTIVE
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+                                                        <span className="flex items-center gap-1">
+                                                            <Calendar size={11} />
+                                                            Created {formatDate(key.createdAt)}
+                                                        </span>
+                                                        <span className="flex items-center gap-1">
+                                                            <Clock size={11} />
+                                                            {formatDateTime(key.lastUsedAt)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <button
+                                                    onClick={() => setKeyToRevoke(key)}
+                                                    className="shrink-0 w-9 h-9 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center cursor-pointer transition-colors"
+                                                    aria-label={`Revoke ${key.name}`}
+                                                >
+                                                    <Trash2 size={15} />
+                                                </button>
+                                            </div>
+
+                                            {/* Key reveal/copy row */}
+                                            {key.rawKey && (
+                                                <div className="flex items-center gap-2 ml-12 bg-muted/40 rounded-lg border border-border/50 px-3 py-2">
+                                                    <code className="flex-1 text-[12px] font-mono text-foreground/85 break-all leading-relaxed select-all">
+                                                        {displayKey}
+                                                    </code>
+                                                    <div className="flex items-center gap-0.5 shrink-0">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => toggleReveal(key.id)}
+                                                            className="cursor-pointer h-7 w-7 rounded-md hover:bg-background flex items-center justify-center transition-colors text-muted-foreground hover:text-foreground"
+                                                            aria-label={isRevealed ? "Hide key" : "Reveal key"}
+                                                            title={isRevealed ? "Hide" : "Reveal"}
+                                                        >
+                                                            {isRevealed ? (
+                                                                <EyeOff size={13} />
+                                                            ) : (
+                                                                <Eye size={13} />
+                                                            )}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleCopy(key)}
+                                                            className="cursor-pointer h-7 w-7 rounded-md hover:bg-background flex items-center justify-center transition-colors text-muted-foreground hover:text-[#7C3AED]"
+                                                            aria-label="Copy key"
+                                                            title="Copy"
+                                                        >
+                                                            {isCopied ? (
+                                                                <Check size={13} className="text-green-600" />
+                                                            ) : (
+                                                                <Copy size={13} />
+                                                            )}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
 

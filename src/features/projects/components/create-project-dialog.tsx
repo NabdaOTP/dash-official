@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { X, Loader2, Building2, Copy, Check, AlertTriangle } from "lucide-react";
+import {
+  X, Loader2, Building2, Copy, Check, CheckCircle2, KeyRound,
+} from "lucide-react";
 import { toast } from "sonner";
 import { createProject } from "../services/project-service";
 import { Button } from "@/components/ui/button";
@@ -65,6 +67,7 @@ export function CreateProjectDialog({
     if (!createdKey) return;
     await navigator.clipboard.writeText(createdKey);
     setCopied(true);
+    toast.success("API key copied");
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -88,16 +91,21 @@ export function CreateProjectDialog({
         {/* Header */}
         <div className="flex items-start justify-between p-5 border-b border-border">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#EDE9FE] flex items-center justify-center">
-              <Building2 size={18} className="text-[#7C3AED]" />
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${createdKey ? "bg-green-50" : "bg-[#EDE9FE]"
+              }`}>
+              {createdKey ? (
+                <CheckCircle2 size={20} className="text-green-600" />
+              ) : (
+                <Building2 size={18} className="text-[#7C3AED]" />
+              )}
             </div>
             <div>
               <h2 className="text-base font-semibold text-foreground">
-                {createdKey ? "Project Created" : "Create New Project"}
+                {createdKey ? "Project created" : "Create New Project"}
               </h2>
               <p className="text-xs text-muted-foreground">
                 {createdKey
-                  ? "Save your API key before continuing"
+                  ? "Your project is ready to go"
                   : "Give your project a name to get started"}
               </p>
             </div>
@@ -114,39 +122,37 @@ export function CreateProjectDialog({
         {createdKey ? (
           /* API Key display */
           <div className="p-5 space-y-4">
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex gap-2.5">
-              <AlertTriangle size={16} className="text-amber-600 shrink-0 mt-0.5" />
-              <div>
-                <p className="text-[12.5px] font-semibold text-amber-900">
-                  This is the only time you&apos;ll see this key
-                </p>
-                <p className="text-[11.5px] text-amber-800 mt-0.5 leading-relaxed">
-                  Copy and store it in a secure location. If you lose it, you&apos;ll need to create a new one.
-                </p>
-              </div>
-            </div>
-
             <div>
-              <label className="text-[12px] font-medium text-muted-foreground mb-1.5 block">
-                Your API key
+              <label className="flex items-center gap-1.5 text-[12px] font-semibold text-muted-foreground mb-1.5">
+                <KeyRound size={12} />
+                YOUR API KEY
               </label>
-              <div className="bg-muted/60 rounded-lg p-3 flex items-start gap-2 border border-border/50">
+              <div className="bg-muted/40 rounded-lg p-3 flex items-start gap-2 border border-border/50">
                 <code className="flex-1 text-[12px] font-mono text-foreground break-all leading-relaxed">
                   {createdKey}
                 </code>
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="shrink-0 w-6 h-6 rounded-md hover:bg-background flex items-center justify-center cursor-pointer transition-colors"
+                  className="shrink-0 h-7 px-2 rounded-md hover:bg-background flex items-center gap-1 cursor-pointer transition-colors text-[11px] font-medium text-[#7C3AED]"
                   aria-label="Copy API key"
                 >
                   {copied ? (
-                    <Check size={15} className="text-green-600" />
+                    <>
+                      <Check size={12} />
+                      Copied
+                    </>
                   ) : (
-                    <Copy size={15} className="text-muted-foreground" />
+                    <>
+                      <Copy size={12} />
+                      Copy
+                    </>
                   )}
                 </button>
               </div>
+              <p className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">
+                You can view and copy this key anytime from the API Keys page.
+              </p>
             </div>
 
             <button

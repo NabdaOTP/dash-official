@@ -58,6 +58,7 @@ export interface ProjectApiKey {
   id: string;
   projectId: string;
   name: string;
+  rawKey: string;         
   lastUsedAt: string | null;
   isActive: boolean;
   createdAt: string;
