@@ -5,6 +5,7 @@ import {
     completeWabaConnect,
     getWabaConnectUrl,
     getWabaStatus,
+    storeWabaConnectSession,
 } from "@/features/waba/services/waba-service";
 import { openOAuthPopup } from "@/features/waba/lib/oauth-popup";
 
@@ -20,6 +21,7 @@ export function useWabaConnect({ projectId, onSuccess }: UseWabaConnectOptions) 
         wabaId?: string;
         phoneNumberId?: string;
     }>({});
+    const connectStateRef = useRef<string | null>(null);
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
@@ -69,6 +71,19 @@ export function useWabaConnect({ projectId, onSuccess }: UseWabaConnectOptions) 
                     phoneNumberId:
                         phoneNumberId || signupSessionRef.current.phoneNumberId,
                 };
+
+                const state = connectStateRef.current;
+                const resolvedWabaId = signupSessionRef.current.wabaId;
+                const resolvedPhoneNumberId = signupSessionRef.current.phoneNumberId;
+                if (state && resolvedWabaId && resolvedPhoneNumberId) {
+                    void storeWabaConnectSession(projectId, {
+                        state,
+                        wabaId: resolvedWabaId,
+                        phoneNumberId: resolvedPhoneNumberId,
+                    }).catch(() => {
+                        // best-effort persistence for no-opener callback recovery
+                    });
+                }
             }
         };
 
@@ -76,16 +91,18 @@ export function useWabaConnect({ projectId, onSuccess }: UseWabaConnectOptions) 
         return () => {
             window.removeEventListener("message", handleMessage);
         };
-    }, []);
+    }, [projectId]);
 
     const connect = useCallback(async () => {
         if (connectingRef.current) return;
         connectingRef.current = true;
         setIsConnecting(true);
         signupSessionRef.current = {};
+        connectStateRef.current = null;
 
         try {
             const connectData = await getWabaConnectUrl(projectId);
+            connectStateRef.current = connectData.state;
             if (!connectData.connectUrl) {
                 throw new Error("No Meta connect URL was returned by backend.");
             }
@@ -195,6 +212,7 @@ export function useWabaConnect({ projectId, onSuccess }: UseWabaConnectOptions) 
         } finally {
             connectingRef.current = false;
             setIsConnecting(false);
+            connectStateRef.current = null;
         }
     }, [projectId, onSuccess]);
 

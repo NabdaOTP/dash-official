@@ -16,6 +16,12 @@ export interface CompleteAutoConnectRequest {
     fallbackRedirectUri?: string;
 }
 
+export interface StoreConnectSessionRequest {
+    state: string;
+    wabaId: string;
+    phoneNumberId: string;
+}
+
 /**
  * Get the WhatsApp connection status for a project.
  * GET /api/v1/projects/{projectId}/waba/status
@@ -103,4 +109,11 @@ export async function completeWabaConnect(
     `/waba/connect/callback/complete-auto`,
     data
   );
+}
+
+export async function storeWabaConnectSession(
+    projectId: string,
+    data: StoreConnectSessionRequest
+): Promise<void> {
+    await api.post<void>(`/projects/${projectId}/waba/connect/session`, data);
 }
