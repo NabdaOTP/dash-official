@@ -72,6 +72,7 @@ const AUTH_PUBLIC_ROUTES = [
  */
 const OPEN_ROUTES = [
   "/invitations/accept",
+  "/connect-whatsapp-account",
 ];
 
 export default function middleware(request: NextRequest) {

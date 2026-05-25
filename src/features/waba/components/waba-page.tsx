@@ -5,10 +5,8 @@ import { useParams } from "next/navigation";
 import {
     MessageCircle, Loader2, AlertCircle, Plus, RefreshCw,
 } from "lucide-react";
-import { toast } from "sonner";
 
-import { getWabaStatus, getWabaConnectUrl } from "@/features/waba/services/waba-service";
-import { openOAuthPopup } from "@/features/waba/lib/oauth-popup";
+import { getWabaStatus } from "@/features/waba/services/waba-service";
 import type { WabaAccount } from "@/features/waba/types";
 
 import { WabaEmptyState } from "./waba-empty-state";
