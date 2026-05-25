@@ -1,27 +1,22 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import {
-    AlertCircle,
-    ArrowRight,
-    FileText,
-    Loader2,
-    MessageCircle,
-    RefreshCw,
-    Send,
+    Send, Loader2, AlertCircle, RefreshCw, MessageCircle,
+    FileText, ArrowRight,
 } from "lucide-react";
-import { useParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
 
-import type { SendResult } from "@/features/send-otp/types";
-import { getTemplates } from "@/features/templates/services/template-service";
-import type { MessageTemplate } from "@/features/templates/types";
 import { getWabaStatus } from "@/features/waba/services/waba-service";
-import type { WabaPhoneNumber } from "@/features/waba/types";
+import { getTemplates } from "@/features/templates/services/template-service";
+import type { WabaAccount } from "@/features/waba/types";
+import type { SendResult } from "@/features/send-otp/types";
+import type { MessageTemplate } from "@/features/templates/types";
 
-import { ResultCard } from "./result-card";
 import { SendOtpForm } from "./send-otp-form";
 import { VerifyOtpForm } from "./verify-otp-form";
+import { ResultCard } from "./result-card";
 
 type PrereqStatus = "loading" | "ready" | "no-waba" | "no-template" | "error";
 
@@ -30,7 +25,8 @@ export function SendOtpPage() {
     const projectId = params?.projectId as string;
 
     const [prereqStatus, setPrereqStatus] = useState<PrereqStatus>("loading");
-    const [phoneNumbers, setPhoneNumbers] = useState<WabaPhoneNumber[]>([]);
+    // Each WabaAccount IS a phone number (one phone per connection)
+    const [accounts, setAccounts] = useState<WabaAccount[]>([]);
     const [lastResult, setLastResult] = useState<SendResult | null>(null);
     const [apiKeyUsed, setApiKeyUsed] = useState("");
 
@@ -43,13 +39,13 @@ export function SendOtpPage() {
                 getTemplates(projectId).catch(() => [] as MessageTemplate[]),
             ]);
 
-            const allPhones: WabaPhoneNumber[] = [];
-            status.accounts.forEach((acc) => {
-                (acc.phoneNumbers ?? []).forEach((p) => allPhones.push(p));
-            });
-            setPhoneNumbers(allPhones);
+            // Filter to only active accounts that don't need reauth
+            const usableAccounts = status.accounts.filter(
+                (a) => a.isActive && !a.needsReauth
+            );
+            setAccounts(usableAccounts);
 
-            if (!status.isConnected || allPhones.length === 0) {
+            if (!status.isConnected || usableAccounts.length === 0) {
                 setPrereqStatus("no-waba");
                 return;
             }
@@ -74,13 +70,12 @@ export function SendOtpPage() {
     }, [checkPrereqs]);
 
 
-
     const handleSent = (result: SendResult, apiKey: string) => {
         setLastResult(result);
         setApiKeyUsed(apiKey);
     };
 
-    // Loading 
+    // ── Loading ──────────────────────────────────────────────
     if (prereqStatus === "loading") {
         return (
             <div className="space-y-6">
@@ -147,17 +142,21 @@ export function SendOtpPage() {
         );
     }
 
-    // ── Ready — show form 
+    // ── Ready ────────────────────────────────────────────────
     return (
         <div className="space-y-6">
             <PageHeader />
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 items-start">
-                {/* Left: forms */}
                 <div className="space-y-6">
                     <SendOtpForm
                         projectId={projectId}
-                        phoneNumbers={phoneNumbers}
+                        phoneNumbers={accounts.map((a) => ({
+                            id: a.id,
+                            phoneNumberId: a.phoneNumberId,
+                            displayPhoneNumber: a.displayPhoneNumber,
+                            verifiedName: a.name,
+                        }))}
                         onSent={handleSent}
                     />
 
@@ -169,7 +168,6 @@ export function SendOtpPage() {
                     )}
                 </div>
 
-                {/* Right: result */}
                 <div className="lg:sticky lg:top-6">
                     {lastResult ? (
                         <ResultCard result={lastResult} />
@@ -182,9 +180,7 @@ export function SendOtpPage() {
     );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Header
-// ─────────────────────────────────────────────────────────────
+
 function PageHeader() {
     return (
         <div className="flex items-center gap-3">
@@ -203,9 +199,6 @@ function PageHeader() {
     );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Prereq blocker (no WABA / no template)
-// ─────────────────────────────────────────────────────────────
 function PrereqState({
     icon, title, description, href, buttonText,
 }: {
@@ -235,9 +228,6 @@ function PrereqState({
     );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Empty result placeholder
-// ─────────────────────────────────────────────────────────────
 function EmptyResultPlaceholder() {
     return (
         <div className="rounded-2xl border border-dashed border-border bg-muted/20 p-8 text-center">

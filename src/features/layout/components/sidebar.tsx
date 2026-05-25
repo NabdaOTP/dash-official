@@ -104,7 +104,7 @@ export function Sidebar({
         <NavItem
           icon={BookOpen}
           label={t("navApiDocs")}
-          href="https://api.nabdaotp.com/docs"
+          href="https://connect.nabdaotp.com/docs"
           isExternal
           onNavigate={onNavigate}
         />
@@ -130,7 +130,7 @@ export function Sidebar({
             />
 
             {/* Credits & billing */}
-            <NavItem icon={CreditCard} label={t("navCredits")}>
+            <NavItem icon={CreditCard} label={t("navCredits")} defaultOpen={normalized.includes("/credits/")}>
               <NavItem
                 icon={Receipt}
                 label={t("navBilling")}
@@ -192,7 +192,7 @@ export function Sidebar({
             />
 
             {/* Analytics */}
-            <NavItem icon={BarChart2} label={t("navAnalytics")}>
+            <NavItem icon={BarChart2} label={t("navAnalytics")} defaultOpen={normalized.includes("/analytics/")}>
               <NavItem
                 icon={PieChart}
                 label={t("navOverview")}
@@ -242,7 +242,7 @@ export function Sidebar({
               <NavItem
                 icon={FileCode}
                 label={t("navApiDocumentation")}
-                href="https://api.nabdaotp.com/docs"
+                href="https://connect.nabdaotp.com/docs"
                 isExternal
                 depth={1}
                 onNavigate={onNavigate}

@@ -143,7 +143,7 @@ export function TemplatesPage() {
                             key={template.id}
                             template={template}
                             projectId={projectId}
-                            wabaAccountId={wabaAccount.wabaAccountId}
+                            wabaAccountId={wabaAccount.id}
                             onRefreshed={handleTemplateRefreshed}
                             onDelete={(tpl) => setTemplateToDelete(tpl)}
                         />
@@ -156,7 +156,7 @@ export function TemplatesPage() {
                 open={createOpen}
                 onClose={() => setCreateOpen(false)}
                 projectId={projectId}
-                wabaAccountId={wabaAccount.wabaAccountId}
+                wabaAccountId={wabaAccount.id}
                 onCreated={handleTemplateCreated}
             />
             <DeleteTemplateDialog

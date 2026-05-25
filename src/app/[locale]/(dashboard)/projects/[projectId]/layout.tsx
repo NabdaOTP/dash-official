@@ -104,13 +104,13 @@ export default function ProjectLayout({
             {project.name}
           </h1>
           <div className="relative">
-            <button
+            {/* <button
               className="w-9 h-9 flex items-center justify-center rounded-md hover:bg-muted cursor-pointer"
               aria-label="Notifications"
             >
-              {/* <Bell size={18} className="text-foreground" /> */}
-              {/* <LanguageSwitcher/> */}
-            </button>
+              <Bell size={18} className="text-foreground" />
+              <LanguageSwitcher/>
+            </button> */}
           </div>
           <button
             className="w-9 h-9 flex items-center justify-center rounded-md hover:bg-muted cursor-pointer lg:hidden ml-1"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, ExternalLink, type LucideIcon } from "lucide-react";
@@ -33,6 +33,12 @@ export function NavItem({
 }: NavItemProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(defaultOpen);
+
+  useEffect(() => {
+    (async () => {
+      if (defaultOpen) setOpen(true);
+    })()
+  }, [defaultOpen]);
 
   // Strip locale prefix: /en/projects → /projects
   const normalizedPath = pathname.replace(/^\/[a-z]{2}(-[A-Z]{2})?/, "");

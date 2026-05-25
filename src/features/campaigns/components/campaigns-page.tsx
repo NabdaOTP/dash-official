@@ -165,7 +165,7 @@ export function CampaignsPage() {
                     open={createOpen}
                     onClose={() => setCreateOpen(false)}
                     projectId={projectId}
-                    wabaAccountId={wabaAccount.wabaAccountId}
+                    wabaAccountId={wabaAccount.id}
                     approvedTemplates={approvedTemplates}
                     onCreated={handleCreated}
                 />

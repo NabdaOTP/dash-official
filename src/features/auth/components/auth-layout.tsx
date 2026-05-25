@@ -1,9 +1,8 @@
 "use client";
 
-import Image from "next/image";
-import { Shield, Zap, Globe, Check } from "lucide-react";
+import { Check, Globe, Shield, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { LanguageSwitcher } from "@/features/layout/components/language-switcher";
+import Image from "next/image";
 
 interface AuthLayoutProps {
     children: React.ReactNode;

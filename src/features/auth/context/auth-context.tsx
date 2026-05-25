@@ -138,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (refreshToken) {
       // Fire-and-forget logout API call
       fetch(
-        `${process.env.NEXT_PUBLIC_API_URL ?? "http://connect.nabdaotp.com/api-docs"}/auth/logout`,
+        `${process.env.NEXT_PUBLIC_API_URL ?? "https://connect.nabdaotp.com/api/v1"}/auth/logout`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

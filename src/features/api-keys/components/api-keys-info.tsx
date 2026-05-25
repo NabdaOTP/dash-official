@@ -57,7 +57,7 @@ export function ApiKeysInfo() {
 
             {/* Docs link */}
             <a
-                href="https://api.nabdaotp.com/docs"
+                href="https://connect.nabdaotp.com/docs"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-4 pt-4 border-t border-border/60 flex items-center gap-2 text-[12.5px] font-semibold text-[#7C3AED] hover:text-[#6D28D9] cursor-pointer transition-colors"

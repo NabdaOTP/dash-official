@@ -43,7 +43,7 @@ export function WabaInfoSidebar() {
             </div>
 
             {/* Docs card */}
-            <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-[#F8F7FF] to-white p-5">
+            <div className="rounded-2xl border border-border/60 bg-linear-to-br from-[#F8F7FF] to-white p-5">
                 <div className="flex items-center gap-2 mb-2">
                     <BookOpen className="w-4 h-4 text-[#7C3AED]" />
                     <h3 className="text-[13px] font-semibold text-foreground">
