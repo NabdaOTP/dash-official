@@ -1,4 +1,4 @@
-// ─────────────────────────────────────────────────────────────
+// -------------------------------------------------------------
 // File: src/features/send-otp/services/otp-service.ts
 //
 // IMPORTANT: These endpoints use API Key auth, NOT user JWT.
@@ -6,9 +6,9 @@
 // with an Authorization: Bearer <apiKey> header (or x-api-key,
 // depending on what the backend expects).
 //
-// This is sandbox-mode only — for production, the user should call
+// This is sandbox-mode only - for production, the user should call
 // these endpoints from their own backend, never from the browser.
-// ─────────────────────────────────────────────────────────────
+// -------------------------------------------------------------
 
 import type {
     SendOtpRequest,
@@ -25,20 +25,30 @@ interface ApiError extends Error {
     payload?: unknown;
 }
 
+interface CallWithApiKeyOptions {
+    method?: "GET" | "POST";
+    body?: unknown;
+}
+
 async function callWithApiKey<T>(
     path: string,
     apiKey: string,
-    body: unknown
+    options?: CallWithApiKeyOptions
 ): Promise<T> {
+    const method = options?.method ?? "POST";
+
     const res = await fetch(`${API_BASE}${path}`, {
-        method: "POST",
+        method,
         headers: {
             "Content-Type": "application/json",
-            // Most platforms accept either header — backend should support one.
+            // Most platforms accept either header - backend should support one.
             Authorization: `Bearer ${apiKey}`,
             "x-api-key": apiKey,
         },
-        body: JSON.stringify(body),
+        body:
+            options?.body !== undefined
+                ? JSON.stringify(options.body)
+                : undefined,
     });
 
     let payload: unknown = null;
@@ -58,12 +68,8 @@ async function callWithApiKey<T>(
         throw err;
     }
 
-    // Backend wraps responses as { data, success, ... } — unwrap if present
-    if (
-        payload &&
-        typeof payload === "object" &&
-        "data" in payload
-    ) {
+    // Backend wraps responses as { data, success, ... } - unwrap if present
+    if (payload && typeof payload === "object" && "data" in payload) {
         return (payload as { data: T }).data;
     }
     return payload as T;
@@ -81,7 +87,7 @@ export async function sendOtp(
     return callWithApiKey<SendOtpResponse>(
         `/external/waba/${phoneNumberId}/otp/send`,
         apiKey,
-        data
+        { body: data }
     );
 }
 
@@ -96,6 +102,69 @@ export async function verifyOtp(
     return callWithApiKey<VerifyOtpResponse>(
         `/external/waba/otp/verify`,
         apiKey,
-        data
+        { body: data }
+    );
+}
+
+interface AvailableTemplateItem {
+    name: string;
+    templateType?: string;
+    category?: string;
+}
+
+interface AvailableTemplatesResponse {
+    defaults?: AvailableTemplateItem[];
+    projectTemplates?: AvailableTemplateItem[];
+    recommendedOtpTemplateNames?: string[];
+}
+
+function isAuthTemplate(template: AvailableTemplateItem): boolean {
+    const type = template.templateType?.toUpperCase();
+    const category = template.category?.toUpperCase();
+    return type === "AUTH" || category === "AUTHENTICATION";
+}
+
+/**
+ * Returns OTP template names available for this API key/project.
+ * GET /external/waba/templates/available
+ */
+export async function getAvailableOtpTemplateNames(
+    apiKey: string
+): Promise<string[]> {
+    const data = await callWithApiKey<AvailableTemplatesResponse>(
+        "/external/waba/templates/available",
+        apiKey,
+        { method: "GET" }
+    );
+
+    const recommended = Array.isArray(data.recommendedOtpTemplateNames)
+        ? data.recommendedOtpTemplateNames
+        : [];
+
+    const authDefaults = Array.isArray(data.defaults)
+        ? data.defaults.filter(isAuthTemplate).map((t) => t.name)
+        : [];
+
+    const authProjectTemplates = Array.isArray(data.projectTemplates)
+        ? data.projectTemplates.filter(isAuthTemplate).map((t) => t.name)
+        : [];
+
+    const preferredNames = Array.from(
+        new Set(
+            [...recommended, ...authDefaults, ...authProjectTemplates]
+                .map((name) => name?.trim())
+                .filter((name): name is string => Boolean(name))
+        )
+    );
+
+    if (preferredNames.length > 0) return preferredNames;
+
+    // Fallback: expose any template names if auth-scoped names are empty.
+    return Array.from(
+        new Set(
+            [...(data.defaults ?? []), ...(data.projectTemplates ?? [])]
+                .map((template) => template.name?.trim())
+                .filter((name): name is string => Boolean(name))
+        )
     );
 }

@@ -4,28 +4,30 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import {
-    Send, Loader2, AlertCircle, RefreshCw, MessageCircle,
-    FileText, ArrowRight,
+    Send,
+    Loader2,
+    AlertCircle,
+    RefreshCw,
+    MessageCircle,
+    ArrowRight,
 } from "lucide-react";
 
 import { getWabaStatus } from "@/features/waba/services/waba-service";
-import { getTemplates } from "@/features/templates/services/template-service";
 import type { WabaAccount } from "@/features/waba/types";
 import type { SendResult } from "@/features/send-otp/types";
-import type { MessageTemplate } from "@/features/templates/types";
 
 import { SendOtpForm } from "./send-otp-form";
 import { VerifyOtpForm } from "./verify-otp-form";
 import { ResultCard } from "./result-card";
 
-type PrereqStatus = "loading" | "ready" | "no-waba" | "no-template" | "error";
+type PrereqStatus = "loading" | "ready" | "no-waba" | "error";
 
 export function SendOtpPage() {
     const params = useParams();
     const projectId = params?.projectId as string;
 
     const [prereqStatus, setPrereqStatus] = useState<PrereqStatus>("loading");
-    // Each WabaAccount IS a phone number (one phone per connection)
+    // Each WabaAccount is a phone number (one phone per connection)
     const [accounts, setAccounts] = useState<WabaAccount[]>([]);
     const [lastResult, setLastResult] = useState<SendResult | null>(null);
     const [apiKeyUsed, setApiKeyUsed] = useState("");
@@ -34,10 +36,7 @@ export function SendOtpPage() {
         if (!projectId) return;
         setPrereqStatus("loading");
         try {
-            const [status, templates] = await Promise.all([
-                getWabaStatus(projectId),
-                getTemplates(projectId).catch(() => [] as MessageTemplate[]),
-            ]);
+            const status = await getWabaStatus(projectId);
 
             // Filter to only active accounts that don't need reauth
             const usableAccounts = status.accounts.filter(
@@ -47,12 +46,6 @@ export function SendOtpPage() {
 
             if (!status.isConnected || usableAccounts.length === 0) {
                 setPrereqStatus("no-waba");
-                return;
-            }
-
-            const hasApproved = templates.some((t) => t.status === "APPROVED");
-            if (!hasApproved) {
-                setPrereqStatus("no-template");
                 return;
             }
 
@@ -66,16 +59,15 @@ export function SendOtpPage() {
     useEffect(() => {
         (async () => {
             await checkPrereqs();
-        })()
+        })();
     }, [checkPrereqs]);
-
 
     const handleSent = (result: SendResult, apiKey: string) => {
         setLastResult(result);
         setApiKeyUsed(apiKey);
     };
 
-    // ── Loading ──────────────────────────────────────────────
+    // Loading
     if (prereqStatus === "loading") {
         return (
             <div className="space-y-6">
@@ -87,7 +79,7 @@ export function SendOtpPage() {
         );
     }
 
-    // ── Error ────────────────────────────────────────────────
+    // Error
     if (prereqStatus === "error") {
         return (
             <div className="space-y-6">
@@ -110,7 +102,7 @@ export function SendOtpPage() {
         );
     }
 
-    // ── No WABA ──────────────────────────────────────────────
+    // No WABA
     if (prereqStatus === "no-waba") {
         return (
             <div className="space-y-6">
@@ -126,23 +118,7 @@ export function SendOtpPage() {
         );
     }
 
-    // ── No template ──────────────────────────────────────────
-    if (prereqStatus === "no-template") {
-        return (
-            <div className="space-y-6">
-                <PageHeader />
-                <PrereqState
-                    icon={<FileText className="w-7 h-7 text-[#7C3AED]" />}
-                    title="Create an approved template"
-                    description="You need at least one APPROVED message template before you can send OTPs. Submit a template for Meta review first."
-                    href={`/projects/${projectId}/templates`}
-                    buttonText="Manage Templates"
-                />
-            </div>
-        );
-    }
-
-    // ── Ready ────────────────────────────────────────────────
+    // Ready
     return (
         <div className="space-y-6">
             <PageHeader />
@@ -161,10 +137,7 @@ export function SendOtpPage() {
                     />
 
                     {lastResult && (
-                        <VerifyOtpForm
-                            sendResult={lastResult}
-                            apiKey={apiKeyUsed}
-                        />
+                        <VerifyOtpForm sendResult={lastResult} apiKey={apiKeyUsed} />
                     )}
                 </div>
 
@@ -179,7 +152,6 @@ export function SendOtpPage() {
         </div>
     );
 }
-
 
 function PageHeader() {
     return (
@@ -200,7 +172,11 @@ function PageHeader() {
 }
 
 function PrereqState({
-    icon, title, description, href, buttonText,
+    icon,
+    title,
+    description,
+    href,
+    buttonText,
 }: {
     icon: React.ReactNode;
     title: string;
