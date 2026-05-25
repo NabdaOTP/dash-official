@@ -170,7 +170,12 @@ export function WabaPage() {
                     </div>
 
                     {accounts.map((account) => (
-                        <WabaAccountCard key={account.id} account={account} />
+                        <WabaAccountCard
+                            key={account.id}
+                            account={account}
+                            projectId={projectId}
+                            onRefresh={fetchStatus}
+                        />
                     ))}
                 </div>
 

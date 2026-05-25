@@ -30,6 +30,7 @@ import { BalanceWidget } from "./balance-widget";
 import { NavItem } from "./nav-item";
 import { ProjectSelector } from "./project-selector";
 import { UserMenu } from "./user-menu";
+import { MessageSquare, MessageSquareText } from "lucide-react";
 
 interface SidebarProps {
   mode: "home" | "project";
@@ -84,7 +85,7 @@ export function Sidebar({
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-0.5">
-        {/* ── General ─────────────────────────────────────── */}
+        {/* General */}
         <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 pt-2 pb-1">
           {t("sectionGeneral")}
         </p>
@@ -109,7 +110,7 @@ export function Sidebar({
           onNavigate={onNavigate}
         />
 
-        {/* ── Project section ─────────────────────────────── */}
+        {/* ── Project section  */}
         {mode === "project" && (
           <>
             <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 pt-4 pb-1">
@@ -155,12 +156,29 @@ export function Sidebar({
             </NavItem>
 
             {/* Send OTP — flat item (uses /external/waba/{phoneNumberId}/otp/send) */}
-            <NavItem
+            {/* <NavItem
               icon={Send}
               label={t("navSendOtp")}
               href={p("/messaging/send")}
               onNavigate={onNavigate}
-            />
+            /> */}
+
+            <NavItem icon={MessageSquare} label={t("navMessaging")}>
+              <NavItem
+                icon={MessageSquareText}
+                label={t("navSendMessage")}
+                href={p("/messaging/send-message")}
+                depth={1}
+                onNavigate={onNavigate}
+              />
+              <NavItem
+                icon={Send}
+                label={t("navSendOtp")}
+                href={p("/messaging/send")}
+                depth={1}
+                onNavigate={onNavigate}
+              />
+            </NavItem>
 
             {/* WhatsApp — flat (just account connection page) */}
             <NavItem

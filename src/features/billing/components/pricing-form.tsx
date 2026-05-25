@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { createCheckoutSession } from "@/features/billing/services/billing-service";
 import { AmountPicker } from "./amount-picker";
 import { CreditEstimator } from "./credit-estimator";
+import { SandboxCard } from "./sandbox-banner"; 
 import { CheckoutSummary } from "./checkout-summary";
 
 const MIN_AMOUNT = 5;
@@ -71,6 +72,8 @@ export function PricingForm() {
                     Top up your project balance to send messages and use Nabda services
                 </p>
             </div>
+
+            <SandboxCard projectId={projectId} />
 
             <AmountPicker
                 selectedAmount={selectedAmount}

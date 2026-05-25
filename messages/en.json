@@ -132,6 +132,7 @@
     "navProjectSettings": "Project Settings",
     "navSettingsGeneral": "General",
     "navSendOtp":"Send OTP",
+    "navSendMessage":"Send Message",
     "navTeamMembers": "Team members",
     "navApiKeys": "API Keys",
     "navApiDocumentation": "API Documentation"

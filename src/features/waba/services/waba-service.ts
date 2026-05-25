@@ -43,3 +43,44 @@ export async function getWabaConnectUrl(
         `/projects/${projectId}/waba/connect-url`
     );
 }
+
+/**
+ * Get a Meta reauthorization URL for a specific WABA account.
+ * Used when the token is expired or close to expiring.
+ *
+ * GET /api/v1/projects/{projectId}/waba/accounts/{wabaAccountId}/reauth-url
+ */
+export async function getWabaReauthUrl(
+    projectId: string,
+    wabaAccountId: string
+): Promise<WabaConnectUrl> {
+    return api.get<WabaConnectUrl>(
+        `/projects/${projectId}/waba/accounts/${wabaAccountId}/reauth-url`
+    );
+}
+
+/**
+ * Disconnect a specific WhatsApp account from a project.
+ *
+ * DELETE /api/v1/projects/{projectId}/waba/disconnect/{wabaAccountId}
+ */
+export async function disconnectWabaAccount(
+    projectId: string,
+    wabaAccountId: string
+): Promise<void> {
+    return api.delete<void>(
+        `/projects/${projectId}/waba/disconnect/${wabaAccountId}`
+    );
+}
+
+/**
+ * Disconnect ALL WhatsApp accounts from a project.
+ * Use with caution — this removes every connection at once.
+ *
+ * DELETE /api/v1/projects/{projectId}/waba/disconnect
+ */
+export async function disconnectAllWabaAccounts(
+    projectId: string
+): Promise<void> {
+    return api.delete<void>(`/projects/${projectId}/waba/disconnect`);
+}

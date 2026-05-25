@@ -1,6 +1,6 @@
 import { api } from "@/lib/api-client";
 import type {
-    ProjectBalance, Transaction, TransactionsResponse, CalculatorRequest, CalculatorResult,
+    ProjectBalance, Transaction, SandboxStatus, TransactionsResponse, CalculatorRequest, CalculatorResult,
     CheckoutRequest, CheckoutResponse,
 } from "../types";
 
@@ -46,4 +46,36 @@ export async function calculateCost(
         `/billing/calculator?projectId=${encodeURIComponent(projectId)}`,
         data
     );
+}
+
+/**
+ * Get the sandbox status for a project.
+ * GET /api/v1/billing/sandbox?projectId=xxx
+ */
+export async function getSandboxStatus(
+    projectId: string
+): Promise<SandboxStatus> {
+    const result = await api.get<SandboxStatus>(
+        `/billing/sandbox?projectId=${encodeURIComponent(projectId)}`
+    );
+    return {
+        enabled: result?.enabled ?? false,
+        maxMessages: result?.maxMessages ?? 0,
+        usedMessages: result?.usedMessages ?? 0,
+    };
+}
+
+export async function updateSandboxStatus(
+    projectId: string,
+    enabled: boolean
+): Promise<SandboxStatus> {
+    const result = await api.post<SandboxStatus>(
+        `/billing/sandbox?projectId=${encodeURIComponent(projectId)}`,
+        { enabled }
+    );
+    return {
+        enabled: result?.enabled ?? enabled,
+        maxMessages: result?.maxMessages ?? 0,
+        usedMessages: result?.usedMessages ?? 0,
+    };
 }

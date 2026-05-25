@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { Check, Copy, Settings as SettingsIcon, Trash2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
-import { useTranslations, useLocale } from "next-intl";
-import { Copy, Check, Settings as SettingsIcon, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
-import { useProjects } from "@/features/projects/context/projects-context";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { DeleteProjectDialog } from "@/features/projects/components/delete-project-dialog";
+import { useProjects } from "@/features/projects/context/projects-context";
 
 export function GeneralSettings() {
     const t = useTranslations("settings.general");
@@ -86,7 +86,7 @@ export function GeneralSettings() {
                 </div>
             </div>
 
-            {/* ─── Project Information card ──────────────────────── */}
+            {/*  Project Information card  */}
             <div className="rounded-2xl border border-border/60 bg-white p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_24px_rgba(124,58,237,0.06)]">
                 <div className="mb-5">
                     <h2 className="text-base font-semibold text-foreground">
@@ -146,6 +146,8 @@ export function GeneralSettings() {
                 </div>
             </div>
 
+            
+
             {/* Danger Zone (owner only)  */}
             {isOwner ? (
                 <div className="rounded-2xl border border-red-200 bg-white overflow-hidden">
@@ -189,7 +191,7 @@ export function GeneralSettings() {
                 </div>
             )}
 
-            {/* ─── Delete dialog ─────────────────────────────────── */}
+            {/*  Delete dialog  */}
             <DeleteProjectDialog
                 open={deleteDialogOpen}
                 onClose={() => setDeleteDialogOpen(false)}
