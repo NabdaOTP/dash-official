@@ -9,9 +9,9 @@ import type { WabaAccount } from "../types";
 export interface CompleteAutoConnectRequest {
     code: string;
     state: string;
-    projectId: string;
-    wabaId: string;
-    phoneNumberId: string;
+    projectId?: string;
+    wabaId?: string;
+    phoneNumberId?: string;
     redirectUri?: string;
     fallbackRedirectUri?: string;
 }

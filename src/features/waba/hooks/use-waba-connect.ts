@@ -8,6 +8,7 @@ import {
     storeWabaConnectSession,
 } from "@/features/waba/services/waba-service";
 import { openOAuthPopup } from "@/features/waba/lib/oauth-popup";
+import { fbLogin, loadFacebookSdk } from "@/features/waba/lib/facebook-sdk";
 
 interface UseWabaConnectOptions {
     projectId: string;
@@ -124,6 +125,48 @@ export function useWabaConnect({ projectId, onSuccess }: UseWabaConnectOptions) 
                 }
             };
 
+            // Preferred flow: SDK login (same as backend test page behavior)
+            // so WA_EMBEDDED_SIGNUP events can provide wabaId/phoneNumberId.
+            if (connectData.embeddedSignup?.configId) {
+                try {
+                    await loadFacebookSdk(
+                        connectData.embeddedSignup.appId,
+                        connectData.embeddedSignup.version
+                    );
+                    const loginResult = await fbLogin(
+                        connectData.embeddedSignup.configId,
+                        {
+                            redirectUri: connectData.redirectUri,
+                            fallbackRedirectUri: connectData.fallbackRedirectUri,
+                            extras: connectData.embeddedSignup.extras,
+                            state: connectData.state,
+                        }
+                    );
+
+                    if (loginResult) {
+                        await new Promise((r) => window.setTimeout(r, 1200));
+                        const wabaId = signupSessionRef.current.wabaId;
+                        const phoneNumberId = signupSessionRef.current.phoneNumberId;
+
+                        await completeWabaConnect({
+                            code: loginResult.code,
+                            state: loginResult.state || connectData.state,
+                            projectId,
+                            ...(wabaId ? { wabaId } : {}),
+                            ...(phoneNumberId ? { phoneNumberId } : {}),
+                            redirectUri: connectData.redirectUri,
+                            fallbackRedirectUri: connectData.fallbackRedirectUri,
+                        });
+
+                        toast.success("WhatsApp connected successfully");
+                        onSuccess?.();
+                        return;
+                    }
+                } catch {
+                    // fallback to popup flow below
+                }
+            }
+
             const result = await openOAuthPopup(
                 connectData.connectUrl,
                 "Connect WhatsApp",
@@ -163,13 +206,13 @@ export function useWabaConnect({ projectId, onSuccess }: UseWabaConnectOptions) 
                         callbackPhoneNumberId ||
                         signupSessionRef.current.phoneNumberId;
 
-                    if (callbackCode && callbackState && wabaId && phoneNumberId) {
+                    if (callbackCode && callbackState) {
                         await completeWabaConnect({
                             code: callbackCode,
                             state: callbackState,
                             projectId,
-                            wabaId,
-                            phoneNumberId,
+                            ...(wabaId ? { wabaId } : {}),
+                            ...(phoneNumberId ? { phoneNumberId } : {}),
                             redirectUri: connectData.redirectUri,
                             fallbackRedirectUri: connectData.fallbackRedirectUri,
                         });
