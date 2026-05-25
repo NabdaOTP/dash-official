@@ -14,6 +14,8 @@ import type { WabaAccount } from "@/features/waba/types";
 import { WabaEmptyState } from "./waba-empty-state";
 import { WabaAccountCard } from "./waba-account-card";
 import { WabaInfoSidebar } from "./waba-info-sidebar";
+import { useWabaConnect } from "@/features/waba/hooks/use-waba-connect";
+
 
 export function WabaPage() {
     const params = useParams();
@@ -23,7 +25,7 @@ export function WabaPage() {
     const [isConnected, setIsConnected] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [connecting, setConnecting] = useState(false);
+    // const [connecting, setConnecting] = useState(false);
 
     const fetchStatus = useCallback(async () => {
         if (!projectId) return;
@@ -60,33 +62,55 @@ export function WabaPage() {
     }, [fetchStatus]);
 
     // Add account via popup
-    const handleAddAccount = async () => {
-        if (connecting) return;
-        setConnecting(true);
-        try {
-            const { connectUrl } = await getWabaConnectUrl(projectId);
-            if (!connectUrl) throw new Error("No connect URL returned");
+    // const handleAddAccount = async () => {
+    //     if (connecting) return;
+    //     setConnecting(true);
+    //     try {
+    //         const { connectUrl } = await getWabaConnectUrl(projectId);
+    //         if (!connectUrl) throw new Error("No connect URL returned");
 
-            const result = await openOAuthPopup(connectUrl, "Connect WhatsApp");
+    //         // Capture current count so polling can detect new account
+    //         const initialCount = accounts.length;
 
-            if (result.completed) {
-                toast.success("WhatsApp connection in progress…");
-                // Refetch a few times to catch the new account
-                // (backend might take a moment to process)
-                await fetchStatus();
-                window.setTimeout(fetchStatus, 1500);
-                window.setTimeout(fetchStatus, 3500);
-            } else if (result.error) {
-                toast.error(result.error);
-            }
-            // If cancelled, stay silent
-        } catch (err) {
-            console.error("Failed to add account:", err);
-            toast.error("Couldn't start the connection. Please try again.");
-        } finally {
-            setConnecting(false);
-        }
-    };
+    //         const result = await openOAuthPopup(
+    //             connectUrl,
+    //             "Connect WhatsApp",
+    //             {
+    //                 onPoll: async () => {
+    //                     try {
+    //                         const status = await getWabaStatus(projectId);
+    //                         return status.accounts.length > initialCount;
+    //                     } catch {
+    //                         return false;
+    //                     }
+    //                 },
+    //                 pollIntervalMs: 2000,
+    //                 pollTimeoutMs: 30000,
+    //             }
+    //         );
+
+    //         if (result.completed) {
+    //             toast.success("WhatsApp account added");
+    //             await fetchStatus();
+    //             window.setTimeout(fetchStatus, 1500);
+    //             window.setTimeout(fetchStatus, 4000);
+    //         } else if (result.cancelled) {
+    //             // Silent — user closed without finishing
+    //         } else if (result.error) {
+    //             toast.error(result.error);
+    //         }
+    //     } catch (err) {
+    //         console.error("Failed to add account:", err);
+    //         toast.error("Couldn't start the connection. Please try again.");
+    //     } finally {
+    //         setConnecting(false);
+    //     }
+    // };
+
+    const { connect: handleAddAccount, isConnecting: connecting } = useWabaConnect({
+        projectId,
+        onSuccess: fetchStatus,
+    });
 
     // Loading 
     if (loading) {

@@ -9,6 +9,7 @@ import { toast } from "sonner";
 
 import {
     getWabaReauthUrl,
+    getWabaStatus,
 } from "@/features/waba/services/waba-service";
 import { openOAuthPopup } from "@/features/waba/lib/oauth-popup";
 import type { WabaAccount } from "@/features/waba/types";
@@ -46,19 +47,44 @@ export function WabaAccountCard({
         setReauthing(true);
         try {
             const { connectUrl } = await getWabaReauthUrl(projectId, account.id);
-            if (!connectUrl) {
-                throw new Error("No reauth URL returned");
-            }
+            if (!connectUrl) throw new Error("No reauth URL returned");
 
-            const result = await openOAuthPopup(connectUrl, "Reauthorize WhatsApp");
+            // Capture current expiry to detect if reauth refreshed the token
+            const initialExpiresAt = account.tokenExpiresAt;
+
+            const result = await openOAuthPopup(
+                connectUrl,
+                "Reauthorize WhatsApp",
+                {
+                    onPoll: async () => {
+                        try {
+                            const status = await getWabaStatus(projectId);
+                            const updated = status.accounts.find((a) => a.id === account.id);
+                            // Success if account no longer needs reauth, OR
+                            // the token expiry got pushed forward (new token issued)
+                            return Boolean(
+                                updated &&
+                                (!updated.needsReauth ||
+                                    updated.tokenExpiresAt > initialExpiresAt)
+                            );
+                        } catch {
+                            return false;
+                        }
+                    },
+                    pollIntervalMs: 2000,
+                    pollTimeoutMs: 30000,
+                }
+            );
 
             if (result.completed) {
                 toast.success("Reauthorization complete");
                 onRefresh();
                 window.setTimeout(onRefresh, 1500);
+                window.setTimeout(onRefresh, 4000);
             } else if (result.error) {
                 toast.error(result.error);
             }
+            // If cancelled, stay silent
         } catch (err) {
             console.error("Reauth failed:", err);
             toast.error("Couldn't start reauthorization. Please try again.");
@@ -208,7 +234,7 @@ export function WabaAccountCard({
     );
 }
 
-// ─────────────────────────────────────────────────────────────
+
 function DetailRow({
     label, value, onCopy, copied, icon, helper,
 }: {
@@ -262,7 +288,7 @@ function DetailRow({
     );
 }
 
-// ─────────────────────────────────────────────────────────────
+
 function getExpiryWarning(daysUntilExpiry: number, needsReauth: boolean) {
     if (needsReauth || daysUntilExpiry <= 0) {
         return {

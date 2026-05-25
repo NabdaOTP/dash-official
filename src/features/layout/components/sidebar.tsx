@@ -196,12 +196,12 @@ export function Sidebar({
               onNavigate={onNavigate}
             />
 
-            <NavItem
+            {/* <NavItem
               icon={Megaphone}
               label={t("navCampaigns")}
               href={p("/campaigns")}
               onNavigate={onNavigate}
-            />
+            /> */}
             <NavItem
               icon={Users}
               label={t("navContacts")}

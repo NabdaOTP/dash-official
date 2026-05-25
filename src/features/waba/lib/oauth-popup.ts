@@ -1,39 +1,68 @@
+// ─────────────────────────────────────────────────────────────
+// File: src/features/waba/lib/oauth-popup.ts
+//
+// WHY THIS IS DIFFERENT FROM THE PREVIOUS VERSION:
+//
+// Modern browsers (Chrome 88+, Safari) enforce strict Cross-Origin-Opener-
+// Policy (COOP) that breaks `window.opener` when a popup navigates through
+// multiple cross-origin URLs (Meta's OAuth flow does this 5-6 times).
+//
+// As a result:
+//  - The backend's callback page CAN'T reach window.opener via postMessage
+//  - It falls back to "tryCompleteWithoutOpener" which needs localStorage
+//    data — but localStorage is per-origin, so connect.nabdaotp.com can't
+//    read what app.nabdaotp.com stored
+//
+// SOLUTION: This module accepts an optional `onPoll` callback that the
+// caller can provide. When the popup closes (or times out), we call
+// onPoll() repeatedly to check if the connection succeeded on the backend.
+// If onPoll returns true at any point, we treat the flow as successful.
+// ─────────────────────────────────────────────────────────────
+
 export interface PopupResult {
     completed: boolean;
     cancelled: boolean;
     error?: string;
+    payload?: Record<string, unknown>;
+}
+
+export interface PopupOptions {
+    /**
+     * Called after the popup closes (or after detected success).
+     * Should return true if the operation succeeded server-side.
+     * Will be called repeatedly (up to ~30s) until it returns true
+     * or we give up.
+     *
+     * This is the fallback for when postMessage can't reach us
+     * due to Cross-Origin-Opener-Policy restrictions.
+     */
+    onPoll?: () => Promise<boolean>;
+    /** How often to poll after popup closes (ms). Default: 2000 */
+    pollIntervalMs?: number;
+    /** How long to keep polling after popup closes (ms). Default: 30000 */
+    pollTimeoutMs?: number;
 }
 
 const POPUP_WIDTH = 600;
 const POPUP_HEIGHT = 750;
 const POLL_INTERVAL_MS = 500;
-const MAX_TIME_MS = 10 * 60 * 1000; // 10-minute timeout
+const MAX_TIME_MS = 10 * 60 * 1000;
 
-// Domains we trust as "the OAuth flow finished" signals.
-// Any *.nabdaotp.com domain qualifies.
 const TRUSTED_DOMAIN_PATTERN = /(^|\.)nabdaotp\.com$/i;
 
-/**
- * Open the given URL in a centered popup and resolve when the flow ends.
- */
 export function openOAuthPopup(
     url: string,
-    title = "OAuth"
+    title = "OAuth",
+    options: PopupOptions = {}
 ): Promise<PopupResult> {
     return new Promise((resolve) => {
         if (typeof window === "undefined") {
-            resolve({
-                completed: false,
-                cancelled: false,
-                error: "No window available",
-            });
+            resolve({ completed: false, cancelled: false, error: "No window available" });
             return;
         }
 
-        // Center popup on screen
         const left = window.screenX + (window.outerWidth - POPUP_WIDTH) / 2;
         const top = window.screenY + (window.outerHeight - POPUP_HEIGHT) / 2;
-
         const features = [
             `width=${POPUP_WIDTH}`,
             `height=${POPUP_HEIGHT}`,
@@ -48,24 +77,32 @@ export function openOAuthPopup(
         ].join(",");
 
         const popup = window.open(url, title, features);
-
         if (!popup) {
             resolve({
                 completed: false,
                 cancelled: false,
-                error:
-                    "Popup was blocked. Please allow popups for this site and try again.",
+                error: "Popup was blocked. Please allow popups and try again.",
             });
             return;
         }
 
-        const startTime = Date.now();
         let detectedSuccess = false;
+        let detectedPayload: Record<string, unknown> | undefined;
+        let detectedError: string | undefined;
         let resolved = false;
+
+        // ── BroadcastChannel listener (works only same-origin, kept for safety) ──
+        let broadcastChannel: BroadcastChannel | null = null;
+        try {
+            broadcastChannel = new BroadcastChannel("NABDA_WABA_CONNECT");
+        } catch {
+            // Not supported
+        }
 
         const cleanup = () => {
             window.clearInterval(checkInterval);
             window.removeEventListener("message", handleMessage);
+            if (broadcastChannel) broadcastChannel.close();
         };
 
         const finish = (result: PopupResult) => {
@@ -80,9 +117,30 @@ export function openOAuthPopup(
             resolve(result);
         };
 
-        // PostMessage listener 
-        // If the backend's callback page posts a message to the opener,
-        // accept it as a completion signal (provided the origin is trusted).
+        /**
+         * Run the onPoll callback repeatedly until it succeeds or times out.
+         * Called when the popup closes without a confirmed success signal.
+         */
+        const runPollFallback = async (): Promise<boolean> => {
+            if (!options.onPoll) return false;
+
+            const interval = options.pollIntervalMs ?? 2000;
+            const timeout = options.pollTimeoutMs ?? 30000;
+            const deadline = Date.now() + timeout;
+
+            while (Date.now() < deadline) {
+                try {
+                    const ok = await options.onPoll();
+                    if (ok) return true;
+                } catch {
+                    // Keep trying — transient errors are OK
+                }
+                await new Promise((r) => window.setTimeout(r, interval));
+            }
+            return false;
+        };
+
+        // ── PostMessage listener (works if COOP doesn't break opener) ──
         const handleMessage = (event: MessageEvent) => {
             let originHost: string;
             try {
@@ -91,55 +149,115 @@ export function openOAuthPopup(
                 return;
             }
 
-            const isTrustedOrigin =
+            const isTrusted =
                 event.origin === window.location.origin ||
                 TRUSTED_DOMAIN_PATTERN.test(originHost);
+            if (!isTrusted) return;
 
-            if (!isTrustedOrigin) return;
+            let data = event.data;
+            if (typeof data === "string") {
+                try {
+                    data = JSON.parse(data);
+                } catch {
+                    return;
+                }
+            }
+            if (!data || typeof data !== "object") return;
 
-            // Accept any of these shapes:
-            //   { type: "waba-connected" }
-            //   { type: "waba-connect", status: "success" | "error" }
-            //   "waba-connected" (raw string)
-            const data = event.data;
+            // Nabda backend callback format
+            if (data.type === "NABDA_WABA_CALLBACK") {
+                const payload = (data.payload || {}) as Record<string, unknown>;
+
+                if (payload.connected === true || payload.account) {
+                    detectedSuccess = true;
+                    detectedPayload = payload;
+                    finish({ completed: true, cancelled: false, payload });
+                    return;
+                }
+
+                if (payload.requiresCompletion === true) {
+                    // Mark and wait — popup will close, then we'll poll
+                    detectedPayload = payload;
+                    return;
+                }
+
+                detectedSuccess = true;
+                detectedPayload = payload;
+                finish({ completed: true, cancelled: false, payload });
+                return;
+            }
+
+            // Legacy types
             const messageStr =
-                typeof data === "string"
-                    ? data
-                    : data?.type ?? data?.event ?? "";
-
+                typeof data === "string" ? data : (data.type ?? data.event ?? "");
             if (
                 messageStr === "waba-connected" ||
-                messageStr === "waba-connect" ||
+                messageStr === "NABDA_WABA_CONNECTED" ||
                 messageStr === "oauth-success"
             ) {
-                const status = (data as { status?: string })?.status;
-                if (status === "error") {
-                    finish({
-                        completed: false,
-                        cancelled: false,
-                        error: (data as { message?: string })?.message ?? "Connection failed",
-                    });
-                } else {
-                    finish({ completed: true, cancelled: false });
-                }
+                detectedSuccess = true;
+                finish({ completed: true, cancelled: false });
             }
         };
 
         window.addEventListener("message", handleMessage);
 
-        // ── Poll the popup 
-        const checkInterval = window.setInterval(() => {
+        if (broadcastChannel) {
+            broadcastChannel.addEventListener("message", (event) => {
+                const payload = event?.data;
+                if (
+                    payload &&
+                    typeof payload === "object" &&
+                    payload.type === "NABDA_WABA_CONNECTED"
+                ) {
+                    detectedSuccess = true;
+                    detectedPayload = payload.payload as Record<string, unknown>;
+                    finish({ completed: true, cancelled: false, payload: detectedPayload });
+                }
+            });
+        }
+
+        // ── Polling fallback when popup closes ─────────────────────────
+        const startTime = Date.now();
+        const checkInterval = window.setInterval(async () => {
             try {
-                // Popup closed by user (or by us after success)
                 if (popup.closed) {
-                    finish({
-                        completed: detectedSuccess,
-                        cancelled: !detectedSuccess,
-                    });
+                    // Popup closed — check if we already detected success
+                    if (detectedSuccess) {
+                        finish({
+                            completed: true,
+                            cancelled: false,
+                            payload: detectedPayload,
+                        });
+                        return;
+                    }
+
+                    // No success signal received. Try the poll fallback —
+                    // ask the dashboard if the connection appeared on the backend
+                    window.clearInterval(checkInterval);
+                    window.removeEventListener("message", handleMessage);
+                    if (broadcastChannel) broadcastChannel.close();
+
+                    const pollSucceeded = await runPollFallback();
+
+                    if (pollSucceeded) {
+                        resolve({
+                            completed: true,
+                            cancelled: false,
+                            payload: detectedPayload,
+                        });
+                    } else {
+                        resolve({
+                            completed: false,
+                            cancelled: true,
+                            error: detectedError,
+                            payload: detectedPayload,
+                        });
+                    }
+                    resolved = true;
                     return;
                 }
 
-                // Timeout
                 if (Date.now() - startTime > MAX_TIME_MS) {
                     finish({
                         completed: false,
@@ -149,16 +267,11 @@ export function openOAuthPopup(
                     return;
                 }
 
-                // Try to read the popup's URL.
-                // This will throw on cross-origin (e.g. facebook.com).
+                // Try reading popup URL
                 try {
                     const popupUrl = popup.location.href;
+                    if (!popupUrl || popupUrl === "about:blank") return;
 
-                    if (!popupUrl || popupUrl === "about:blank") {
-                        return; // not navigated yet
-                    }
-
-                    // Parse to get hostname
                     let popupHost: string;
                     try {
                         popupHost = new URL(popupUrl).hostname;
@@ -166,40 +279,31 @@ export function openOAuthPopup(
                         return;
                     }
 
-                    // Did we land on a Nabda-controlled domain?
                     const isNabdaDomain =
                         popupUrl.startsWith(window.location.origin) ||
                         TRUSTED_DOMAIN_PATTERN.test(popupHost);
 
                     if (isNabdaDomain) {
-                        // Check query string for explicit error signal
                         try {
                             const params = new URL(popupUrl).searchParams;
-                            const errParam = params.get("error") || params.get("error_description");
-                            if (errParam) {
+                            const err = params.get("error") || params.get("error_description");
+                            if (err) {
                                 finish({
                                     completed: false,
                                     cancelled: false,
-                                    error: decodeURIComponent(errParam),
+                                    error: decodeURIComponent(err),
                                 });
                                 return;
                             }
                         } catch {
                             // ignore
                         }
-
+                        // We're on a Nabda URL → the backend's callback ran
+                        // Set flag so if popup closes, we treat as success
                         detectedSuccess = true;
-                        // Close after a brief delay so the user sees any final page
-                        window.setTimeout(() => {
-                            try {
-                                popup.close();
-                            } catch {
-                                // ignore
-                            }
-                        }, 800);
                     }
                 } catch {
-                    // Cross-origin (user is on facebook.com) — keep polling
+                    // Cross-origin — keep polling
                 }
             } catch (err) {
                 finish({

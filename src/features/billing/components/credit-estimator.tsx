@@ -32,12 +32,12 @@ export function CreditEstimator({ amount }: CreditEstimatorProps) {
     const params = useParams();
     const projectId = params?.projectId as string;
 
-    // ── settings ─────────────────────────────────────────────
+    // settings 
     const [category, setCategory] = useState<MessageCategory>(DEFAULT_CATEGORY);
     const [country, setCountry] = useState<string>(DEFAULT_COUNTRY);
     const [expanded, setExpanded] = useState(false);
 
-    // ── result + cache ───────────────────────────────────────
+    // result + cache 
     const [result, setResult] = useState<CalculatorResult | null>(null);
     const [loading, setLoading] = useState(false);
     const [failed, setFailed] = useState(false);
@@ -50,7 +50,7 @@ export function CreditEstimator({ amount }: CreditEstimatorProps) {
     // Abort outdated requests
     const requestIdRef = useRef(0);
 
-    // ── fetch logic ──────────────────────────────────────────
+    // ── fetch logic 
     const fetchEstimate = useCallback(async () => {
         if (!projectId) return;
 
@@ -105,7 +105,7 @@ export function CreditEstimator({ amount }: CreditEstimatorProps) {
         };
     }, [fetchEstimate]);
 
-    // ── derived ──────────────────────────────────────────────
+    // derived 
     const estimatedMessages = useMemo(() => {
         if (!result || amount <= 0 || isNaN(amount)) return 0;
         return calculateMessageCount(amount, result.finalCostPerMessage);
@@ -114,7 +114,7 @@ export function CreditEstimator({ amount }: CreditEstimatorProps) {
     const selectedCountry = findCountry(country);
     const selectedCategory = CATEGORIES.find((c) => c.id === category);
 
-    // ── empty state — no amount entered ──────────────────────
+    // empty state — no amount entered 
     if (amount <= 0 || isNaN(amount)) {
         return (
             <div className="rounded-2xl border border-dashed border-border bg-muted/20 px-5 py-4 flex items-center gap-3 mb-6">
@@ -128,14 +128,14 @@ export function CreditEstimator({ amount }: CreditEstimatorProps) {
         );
     }
 
-    // ── failed silently — hide widget but don't bother user ──
+    // failed silently — hide widget but don't bother user ──
     if (failed && !result) {
         return null;
     }
 
-    // ── ready ────────────────────────────────────────────────
+    // ready 
     return (
-        <div className="rounded-2xl border border-[#7C3AED]/15 bg-gradient-to-br from-[#F8F7FF] to-white p-5 mb-6">
+        <div className="rounded-2xl border border-[#7C3AED]/15 bg-linear-to-br from-[#F8F7FF] to-white p-5 mb-6">
             {/* Top: estimate */}
             <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-xl bg-white border border-[#7C3AED]/20 flex items-center justify-center shrink-0 shadow-sm">

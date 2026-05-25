@@ -47,7 +47,6 @@ export function SandboxSettingsCard({ projectId }: SandboxSettingsCardProps) {
         if (!status || updating) return;
         const next = !status.enabled;
 
-        // Optimistic UI update — we'll roll back on error
         setStatus({ ...status, enabled: next });
         setUpdating(true);
 
@@ -58,7 +57,6 @@ export function SandboxSettingsCard({ projectId }: SandboxSettingsCardProps) {
                 next ? "Sandbox mode enabled" : "Sandbox mode disabled"
             );
         } catch (err) {
-            // Roll back
             setStatus((prev) => (prev ? { ...prev, enabled: !next } : null));
             const msg = err instanceof Error ? err.message : "";
             if (msg.includes("500") || msg.toLowerCase().includes("internal server")) {
@@ -73,7 +71,6 @@ export function SandboxSettingsCard({ projectId }: SandboxSettingsCardProps) {
         }
     };
 
-    // ── Loading ──────────────────────────────────────────────
     if (loading) {
         return (
             <CardShell>
@@ -85,7 +82,6 @@ export function SandboxSettingsCard({ projectId }: SandboxSettingsCardProps) {
         );
     }
 
-    // ── Load error ───────────────────────────────────────────
     if (loadError || !status) {
         return (
             <CardShell>

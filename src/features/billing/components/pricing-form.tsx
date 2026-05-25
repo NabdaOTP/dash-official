@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { useParams } from "next/navigation";
-import { toast } from "sonner";
 import { createCheckoutSession } from "@/features/billing/services/billing-service";
+import { useParams } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 import { AmountPicker } from "./amount-picker";
-import { CreditEstimator } from "./credit-estimator";
-import { SandboxCard } from "./sandbox-banner"; 
 import { CheckoutSummary } from "./checkout-summary";
+import { SandboxCard } from "./sandbox-banner";
 
 const MIN_AMOUNT = 5;
 const MAX_AMOUNT = 10000;
@@ -83,7 +82,7 @@ export function PricingForm() {
                 onCustomChange={handleCustomChange}
             />
 
-            <CreditEstimator amount={estimatorAmount} />
+            {/* <CreditEstimator amount={estimatorAmount} /> */}
 
             <CheckoutSummary
                 finalAmount={finalAmount}

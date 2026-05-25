@@ -1,9 +1,20 @@
-import { api } from "@/lib/api-client";
 import type {
-    WabaAccount,
     WabaConnectUrl,
     WabaStatus,
 } from "../types";
+
+import { api } from "@/lib/api-client";
+import type { WabaAccount } from "../types";
+
+export interface CompleteAutoConnectRequest {
+    code: string;
+    state: string;
+    projectId: string;
+    wabaId: string;
+    phoneNumberId: string;
+    redirectUri?: string;
+    fallbackRedirectUri?: string;
+}
 
 /**
  * Get the WhatsApp connection status for a project.
@@ -83,4 +94,13 @@ export async function disconnectAllWabaAccounts(
     projectId: string
 ): Promise<void> {
     return api.delete<void>(`/projects/${projectId}/waba/disconnect`);
+}
+
+export async function completeWabaConnect(
+  data: CompleteAutoConnectRequest
+): Promise<WabaAccount> {
+  return api.post<WabaAccount>(
+    `/waba/connect/callback/complete-auto`,
+    data
+  );
 }

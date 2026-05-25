@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
     X, Loader2, FileText, Sparkles, Pencil, ArrowLeft,
@@ -29,10 +30,27 @@ interface CreateTemplateDialogProps {
 
 type Step = "presets" | "builder";
 
-const CATEGORIES: { value: TemplateCategory; }[] = [
-    { value: "AUTHENTICATION" },
-    { value: "UTILITY" },
-    { value: "MARKETING" },
+const CATEGORIES = [
+    {
+        id: "AUTHENTICATION" as const,
+        label: "Authentication",
+        description: "OTP and verification codes",
+        icon: "🔐",
+    },
+    {
+        id: "UTILITY" as const,
+        label: "Utility",
+        description: "Order updates, appointments",
+        icon: "📦",
+        comingSoon: true,  // ← ADD this flag
+    },
+    {
+        id: "MARKETING" as const,
+        label: "Marketing",
+        description: "Promotional messages",
+        icon: "📣",
+        comingSoon: true,  // ← ADD this flag
+    },
 ];
 
 export function CreateTemplateDialog({
@@ -55,11 +73,11 @@ export function CreateTemplateDialog({
     useEffect(() => {
         (async () => {
             if (open) {
-            setStep("presets");
-            setForm(EMPTY_FORM);
-            setErrors({});
-            setSubmitting(false);
-        }
+                setStep("presets");
+                setForm(EMPTY_FORM);
+                setErrors({});
+                setSubmitting(false);
+            }
         })()
     }, [open]);
 
@@ -225,20 +243,47 @@ export function CreateTemplateDialog({
                                 <div className="grid grid-cols-2 gap-3">
                                     <Field label={t("fields.category")} required>
                                         <div className="grid grid-cols-3 gap-1.5">
-                                            {CATEGORIES.map((c) => (
-                                                <button
-                                                    key={c.value}
-                                                    type="button"
-                                                    onClick={() => updateForm("category", c.value)}
-                                                    disabled={submitting}
-                                                    className={`cursor-pointer h-10 px-2 rounded-lg text-[11.5px] font-semibold uppercase tracking-wide transition-all ${form.category === c.value
-                                                        ? "bg-[#7C3AED] text-white shadow-sm"
-                                                        : "bg-muted/40 text-muted-foreground hover:bg-muted"
-                                                        } disabled:opacity-50`}
-                                                >
-                                                    {t(`fields.categories.${c.value.toLowerCase()}`)}
-                                                </button>
-                                            ))}
+                                            {CATEGORIES.map((cat) => {
+                                                const isDisabled = cat.comingSoon;
+                                                const isActive = form.category === cat.id && !isDisabled;
+
+                                                return (
+                                                    <button
+                                                        key={cat.id}
+                                                        type="button"
+                                                        onClick={() => !isDisabled && updateForm("category", cat.id)}
+                                                        disabled={isDisabled}
+                                                        title={isDisabled ? "Coming soon" : undefined}
+                                                        className={`relative rounded-lg p-3 text-left border transition-all ${isDisabled
+                                                            ? "bg-muted/30 border-border/40 cursor-not-allowed opacity-60"
+                                                            : isActive
+                                                                ? "bg-[#F8F7FF] border-[#7C3AED] cursor-pointer"
+                                                                : "bg-white border-border/60 hover:border-[#7C3AED]/40 cursor-pointer"
+                                                            }`}
+                                                    >
+                                                        <div className="flex items-start gap-2.5">
+                                                            <div className="text-[18px] leading-none mt-0.5">{cat.icon}</div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="flex items-center gap-1.5 flex-wrap">
+                                                                    <p className={`text-[13px] font-semibold leading-tight ${isActive ? "text-[#7C3AED]" : "text-foreground"
+                                                                        }`}>
+                                                                        {cat.label}
+                                                                    </p>
+                                                                    {isDisabled && (
+                                                                        <span className="inline-flex items-center gap-0.5 text-[9px] uppercase tracking-wide font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
+                                                                            <Lock className="w-2 h-2" />
+                                                                            Soon
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+                                                                    {cat.description}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
                                     </Field>
 
@@ -372,7 +417,7 @@ export function CreateTemplateDialog({
                     )}
                 </div>
 
-                {/* ─── Footer (builder step only) ────────────────────── */}
+                {/* ─── Footer (builder step only)  */}
                 {step === "builder" && (
                     <div className="flex items-center justify-between gap-2 px-5 sm:px-6 py-4 bg-muted/30 border-t border-border/40 shrink-0">
                         <p className="text-[11.5px] text-muted-foreground">
