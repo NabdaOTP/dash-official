@@ -22,6 +22,18 @@ export interface StoreConnectSessionRequest {
     phoneNumberId: string;
 }
 
+export interface AttachWabaSenderRequest {
+    accessToken: string;
+    wabaId: string;
+    phoneNumberId: string;
+}
+
+export interface SendWabaTestMessageRequest {
+    to: string;
+    templateName?: string;
+    language?: string;
+}
+
 /**
  * Get the WhatsApp connection status for a project.
  * GET /api/v1/projects/{projectId}/waba/status
@@ -116,4 +128,22 @@ export async function storeWabaConnectSession(
     data: StoreConnectSessionRequest
 ): Promise<void> {
     await api.post<void>(`/projects/${projectId}/waba/connect/session`, data);
+}
+
+export async function attachWabaSender(
+    projectId: string,
+    data: AttachWabaSenderRequest
+): Promise<WabaAccount> {
+    return api.post<WabaAccount>(`/projects/${projectId}/waba/connect/manual`, data);
+}
+
+export async function sendWabaTestMessage(
+    projectId: string,
+    phoneNumberId: string,
+    data: SendWabaTestMessageRequest
+): Promise<unknown> {
+    return api.post<unknown>(
+        `/projects/${projectId}/waba/accounts/${phoneNumberId}/test-message`,
+        data
+    );
 }

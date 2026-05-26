@@ -13,6 +13,7 @@ import { WabaEmptyState } from "./waba-empty-state";
 import { WabaAccountCard } from "./waba-account-card";
 import { WabaInfoSidebar } from "./waba-info-sidebar";
 import { useWabaConnect } from "@/features/waba/hooks/use-waba-connect";
+import { WabaReviewTools } from "./waba-review-tools";
 
 
 export function WabaPage() {
@@ -149,10 +150,17 @@ export function WabaPage() {
             <div className="space-y-6">
                 <PageHeader />
                 <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
-                    <WabaEmptyState
-                        projectId={projectId}
-                        onConnected={fetchStatus}
-                    />
+                    <div className="space-y-4">
+                        <WabaEmptyState
+                            projectId={projectId}
+                            onConnected={fetchStatus}
+                        />
+                        <WabaReviewTools
+                            projectId={projectId}
+                            accounts={accounts}
+                            onRefresh={fetchStatus}
+                        />
+                    </div>
                     <WabaInfoSidebar />
                 </div>
             </div>
@@ -199,6 +207,12 @@ export function WabaPage() {
                             onRefresh={fetchStatus}
                         />
                     ))}
+
+                    <WabaReviewTools
+                        projectId={projectId}
+                        accounts={accounts}
+                        onRefresh={fetchStatus}
+                    />
                 </div>
 
                 <WabaInfoSidebar />
