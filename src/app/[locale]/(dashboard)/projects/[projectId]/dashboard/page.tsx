@@ -1,6 +1,5 @@
 import { AnalyticsOverview } from "@/features/analytics/components/analytics-overview";
 import { MessagesBreakdown } from "@/features/analytics/components/messages-breakdown";
-import { UsageCard } from "@/features/analytics/components/usage-card";
 import { QuickActions } from "@/features/analytics/components/quick-actions";
 import { RecentActivity } from "@/features/analytics/components/recent-activity";
 
@@ -20,15 +19,8 @@ export default function ProjectDashboardPage() {
       {/* Stats overview */}
       <AnalyticsOverview />
 
-      {/* Performance + Usage row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2">
-          <MessagesBreakdown />
-        </div>
-        <div>
-          <UsageCard />
-        </div>
-      </div>
+      {/* Message performance */}
+      <MessagesBreakdown />
 
       {/* Recent activity + Quick actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">

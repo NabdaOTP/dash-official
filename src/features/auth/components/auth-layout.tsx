@@ -1,7 +1,6 @@
 "use client";
 
 import { Check, Globe, Shield, Zap } from "lucide-react";
-import { useTranslations } from "next-intl";
 import Image from "next/image";
 
 interface AuthLayoutProps {
@@ -9,18 +8,16 @@ interface AuthLayoutProps {
 }
 
 export function AuthLayout({ children }: AuthLayoutProps) {
-    const t = useTranslations("AuthLayout");
-
     const features = [
-        { icon: Shield, label: t("featureSecurityLabel"), desc: t("featureSecurityDesc") },
-        { icon: Zap, label: t("featureSpeedLabel"), desc: t("featureSpeedDesc") },
-        { icon: Globe, label: t("featureGlobalLabel"), desc: t("featureGlobalDesc") },
+        { icon: Zap, label: "Instant delivery", desc: "OTP messages reach your users in milliseconds" },
+        { icon: Shield, label: "Reliable & secure", desc: "High deliverability with bank-level encryption" },
+        { icon: Globe, label: "Global reach", desc: "Send to 190+ countries worldwide" },
     ];
 
     const trustPoints = [
-        t("trustFreeTrial"),
-        t("trustNoCreditCard"),
-        t("trustCancelAnytime"),
+        "Free trial credits included",
+        "No credit card required",
+        "Cancel anytime",
     ];
 
     return (
@@ -35,7 +32,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                 <div className="relative z-10 flex flex-col h-full space-y-3 p-10 xl:p-14">
                     {/* Logo */}
                     <a
-                        href="https://www.nabdaotp.com/"
+                        href="https://www.nabda-otp.com/"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-3 group w-fit"
@@ -51,14 +48,14 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                     {/* Main copy */}
                     <div className="flex-1 flex flex-col justify-center max-w-md">
                         <h1 className="text-[2rem] xl:text-[2.5rem] font-bold text-white leading-[1.15] tracking-tight mb-5">
-                            {t("heroTitle")}
+                            Simple, fast,
                             <br />
                             <span className="bg-linear-to-r from-white to-white/60 bg-clip-text text-transparent">
-                                {t("heroTitleHighlight")}
+                                and reliable.
                             </span>
                         </h1>
                         <p className="text-white/70 text-[15px] leading-relaxed mb-10">
-                            {t("heroSubtitle")}
+                            Send OTP messages to your users in seconds, high deliverability, global coverage, zero hassle.
                         </p>
 
                         <div className="space-y-4 mb-10">
@@ -95,7 +92,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 
                     {/* Footer */}
                     <p className="text-white/35 text-xs">
-                        {t("copyright", { year: new Date().getFullYear() })}
+                        © {new Date().getFullYear()} Nabda OTP. All rights reserved.
                     </p>
                 </div>
             </div>
@@ -106,7 +103,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                 <div className="flex items-center justify-between px-5 sm:px-8 py-5 shrink-0">
                     {/* Mobile-only logo */}
                     <a
-                        href="https://www.nabdaotp.com/"
+                        href="https://www.nabda-otp.com/"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 lg:hidden"

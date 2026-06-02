@@ -233,7 +233,7 @@ export function SignupForm() {
                 <p className="text-[11px] text-center text-muted-foreground leading-relaxed">
                     {t("termsText")}{" "}
                     <a
-                        href="https://www.nabdaotp.com/terms-of-service"
+                        href="https://www.nabda-otp.com/terms-of-service"
                         className="text-[#7C3AED] hover:underline font-medium"
                         target="_blank"
                         rel="noopener noreferrer"
@@ -242,7 +242,7 @@ export function SignupForm() {
                     </a>{" "}
                     {t("and")}{" "}
                     <a
-                        href="https://www.nabdaotp.com/privacy-policy"
+                        href="https://www.nabda-otp.com/privacy-policy"
                         className="text-[#7C3AED] hover:underline font-medium"
                         target="_blank"
                         rel="noopener noreferrer"

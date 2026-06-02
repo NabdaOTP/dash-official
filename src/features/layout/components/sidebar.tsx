@@ -56,7 +56,7 @@ export function Sidebar({
       <div className="flex items-center gap-2.5 px-5 h-[57px] border-b border-border shrink-0">
         <div className="flex items-center gap-2">
           <a
-            href="https://www.nabdaotp.com/"
+            href="https://www.nabda-otp.com/"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2"
@@ -105,7 +105,7 @@ export function Sidebar({
         <NavItem
           icon={BookOpen}
           label={t("navApiDocs")}
-          href="https://connect.nabdaotp.com/docs"
+          href="https://connect.nabda-otp.com/docs"
           isExternal
           onNavigate={onNavigate}
         />
@@ -260,7 +260,7 @@ export function Sidebar({
               <NavItem
                 icon={FileCode}
                 label={t("navApiDocumentation")}
-                href="https://connect.nabdaotp.com/docs"
+                href="https://connect.nabda-otp.com/docs"
                 isExternal
                 depth={1}
                 onNavigate={onNavigate}

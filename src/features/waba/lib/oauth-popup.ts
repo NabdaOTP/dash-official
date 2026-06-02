@@ -10,8 +10,8 @@
 // As a result:
 //  - The backend's callback page CAN'T reach window.opener via postMessage
 //  - It falls back to "tryCompleteWithoutOpener" which needs localStorage
-//    data — but localStorage is per-origin, so connect.nabdaotp.com can't
-//    read what app.nabdaotp.com stored
+//    data — but localStorage is per-origin, so connect.nabda-otp.com can't
+//    read what app.nabda-otp.com stored
 //
 // SOLUTION: This module accepts an optional `onPoll` callback that the
 // caller can provide. When the popup closes (or times out), we call
@@ -48,7 +48,7 @@ const POPUP_HEIGHT = 750;
 const POLL_INTERVAL_MS = 500;
 const MAX_TIME_MS = 10 * 60 * 1000;
 
-const TRUSTED_DOMAIN_PATTERN = /(^|\.)nabdaotp\.com$/i;
+const TRUSTED_DOMAIN_PATTERN = /(^|\.)nabda-otp\.com$/i;
 
 export function openOAuthPopup(
     url: string,

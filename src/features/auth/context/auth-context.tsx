@@ -70,11 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const profile = await getProfile();
       setUser(profile);
     } catch {
-      // Profile fetch failed — could be expired access token.
-      // The api-client already auto-retries with refresh, so if we got here,
-      // refresh either failed or refresh token is also gone.
-
-      // Last-ditch effort: try refresh manually if we still have a refresh token
+      
       if (refreshToken) {
         const refreshed = await tryRefreshToken();
         if (refreshed) {
@@ -138,7 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (refreshToken) {
       // Fire-and-forget logout API call
       fetch(
-        `${process.env.NEXT_PUBLIC_API_URL ?? "https://connect.nabdaotp.com/api/v1"}/auth/logout`,
+        `${process.env.NEXT_PUBLIC_API_URL ?? "https://connect.nabda-otp.com/api/v1"}/auth/logout`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -18,7 +18,7 @@ import type {
 } from "../types";
 
 const API_BASE =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "https://connect.nabdaotp.com/api/v1";
+    process.env.NEXT_PUBLIC_API_BASE_URL || "https://connect.nabda-otp.com/api/v1";
 
 interface ApiError extends Error {
     statusCode?: number;
