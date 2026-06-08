@@ -1,7 +1,7 @@
 const BASE_URL =
     process.env.NEXT_PUBLIC_API_URL ?? "https://connect.nabda-otp.com/api/v1";
 
-// ── Token lifetimes ──
+// Token lifetimes
 // Access token cookie: 30 days (backend access token itself may expire sooner;
 //                                refresh will kick in automatically)
 // Refresh token: stored in localStorage indefinitely (cleared on logout)
