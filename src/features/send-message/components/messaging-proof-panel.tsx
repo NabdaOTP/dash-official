@@ -119,7 +119,7 @@ export function MessagingProofPanel({
             </div>
 
             <div className="grid gap-2 sm:grid-cols-2">
-                <CompactInfo label="Customer" value={contact?.name?.trim() || "Test customer"} icon={<Phone className="w-3.5 h-3.5" />} />
+                <CompactInfo label="Customer" value={contact?.name?.trim() || "Ahmed Attallah"} icon={<Phone className="w-3.5 h-3.5" />} />
                 <CompactInfo label="Business" value={account?.name || "Connected WABA"} icon={<ShieldCheck className="w-3.5 h-3.5" />} />
                 <CompactInfo
                     label="OTP code"
