@@ -8,6 +8,7 @@ import {
 import { toast } from "sonner";
 
 import { sendMessage } from "@/features/send-message/services/message-service";
+import type { Contact } from "@/features/contacts/types";
 import { getTemplates } from "@/features/templates/services/template-service";
 import { getProjectApiKeys } from "@/features/projects/services/project-service";
 import type { MessageTemplate } from "@/features/templates/types";
@@ -26,6 +27,7 @@ interface VariableRow {
 interface SendMessageFormProps {
     projectId: string;
     accounts: WabaAccount[];
+    contacts: Contact[];
     initialRecipient?: string;
     onSent: (result: MessageSendResult, evidence: MessageSendEvidence) => void;
 }
@@ -33,11 +35,13 @@ interface SendMessageFormProps {
 export function SendMessageForm({
     projectId,
     accounts,
+    contacts,
     initialRecipient,
     onSent,
 }: SendMessageFormProps) {
     // ── form state ───────────────────────────────────────────
     const [recipient, setRecipient] = useState("");
+    const [recipientContactId, setRecipientContactId] = useState("");
     const [senderAccountId, setSenderAccountId] = useState<string>(
         accounts[0]?.id ?? ""
     );
@@ -56,6 +60,21 @@ export function SendMessageForm({
         setRecipient((current) => current.trim() ? current : initialRecipient);
     }, [initialRecipient]);
 
+    useEffect(() => {
+        if (contacts.length === 0) {
+            setRecipientContactId("");
+            return;
+        }
+
+        const stillSelected = contacts.some(
+            (contact) => contact.id === recipientContactId
+        );
+        if (!stillSelected) {
+            setRecipientContactId("");
+            setRecipient("");
+        }
+    }, [contacts, recipientContactId]);
+
     const selectedAccount = useMemo(
         () => accounts.find((a) => a.id === senderAccountId),
         [accounts, senderAccountId]
@@ -64,6 +83,10 @@ export function SendMessageForm({
     const selectedTemplate = useMemo(
         () => templates.find((t) => t.name === templateName),
         [templates, templateName]
+    );
+    const selectedContact = useMemo(
+        () => contacts.find((contact) => contact.id === recipientContactId) || null,
+        [contacts, recipientContactId]
     );
     const selectedApiKey = useMemo(
         () => apiKeys.find((k) => k.id === apiKeyId) || apiKeys.find((k) => k.isActive),
@@ -152,6 +175,12 @@ export function SendMessageForm({
         setVariables((prev) =>
             prev.map((v) => (v.id === id ? { ...v, value } : v))
         );
+    };
+
+    const handleRecipientChange = (contactId: string) => {
+        setRecipientContactId(contactId);
+        const contact = contacts.find((item) => item.id === contactId);
+        setRecipient(contact?.phoneNumber || "");
     };
 
     // ── validation ───────────────────────────────────────────
@@ -281,18 +310,35 @@ export function SendMessageForm({
 
             {/* Recipient */}
             <Field
-                label="Recipient Phone Number"
-                helper="International format with country code (e.g. 201001234567)"
+                label="Recipient Contact"
+                helper="Select the recipient from your saved contacts"
                 icon={<Target className="w-3.5 h-3.5" />}
             >
-                <input
-                    type="tel"
-                    value={recipient}
-                    onChange={(e) => setRecipient(e.target.value)}
-                    placeholder="201001234567"
-                    disabled={submitting}
-                    className="w-full h-10 px-3.5 rounded-lg border border-border bg-background font-mono text-[13.5px] outline-none transition-colors focus:ring-2 focus:ring-[#7C3AED]/30 focus:border-[#7C3AED] disabled:opacity-50"
-                />
+                {contacts.length === 0 ? (
+                    <EmptyHint text="No contacts available yet. Add a customer first." />
+                ) : (
+                    <SelectWrapper>
+                        <select
+                            aria-label="select"
+                            value={recipientContactId}
+                            onChange={(e) => handleRecipientChange(e.target.value)}
+                            disabled={submitting}
+                            className="appearance-none w-full h-10 px-3.5 pe-9 rounded-lg border border-border bg-background text-[13.5px] outline-none transition-colors focus:ring-2 focus:ring-[#7C3AED]/30 focus:border-[#7C3AED] disabled:opacity-50"
+                        >
+                            <option value="">Select a contact…</option>
+                            {contacts.map((contact) => (
+                                <option key={contact.id} value={contact.id}>
+                                    {contact.name?.trim() || contact.phoneNumber} — {contact.phoneNumber}
+                                </option>
+                            ))}
+                        </select>
+                    </SelectWrapper>
+                )}
+                {selectedContact?.phoneNumber ? (
+                    <div className="mt-2 rounded-lg border border-dashed border-border bg-muted/20 px-3 py-2 text-[11.5px] text-muted-foreground">
+                        Selected number: <span className="font-mono text-foreground">{selectedContact.phoneNumber}</span>
+                    </div>
+                ) : null}
             </Field>
 
             {/* Template */}

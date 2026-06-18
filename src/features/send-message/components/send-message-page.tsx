@@ -172,6 +172,7 @@ export function SendMessagePage() {
                 <SendMessageForm
                     projectId={projectId}
                     accounts={accounts}
+                    contacts={contacts}
                     initialRecipient={selectedContact?.phoneNumber}
                     onSent={handleSent}
                 />
