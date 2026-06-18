@@ -356,48 +356,6 @@ export function SendMessageForm({
                 </Field>
             )}
 
-            {/* API key */}
-            <Field
-                label="Project API Key"
-                helper="Loaded from the backend for the selected project. No copy/paste needed."
-                icon={<KeyRound className="w-3.5 h-3.5" />}
-            >
-                {hasNoActiveKeys && (
-                    <EmptyHint text="No active API keys. Create one in the API Keys page." />
-                )}
-                {!hasNoActiveKeys && (
-                    <>
-                        <SelectWrapper>
-                            <select
-                                aria-label="select"
-                                value={apiKeyId}
-                                onChange={(e) => setApiKeyId(e.target.value)}
-                                disabled={submitting || loadingData}
-                                className="appearance-none w-full h-10 px-3.5 pe-9 rounded-lg border border-border bg-background text-[13.5px] outline-none transition-colors focus:ring-2 focus:ring-[#7C3AED]/30 focus:border-[#7C3AED] disabled:opacity-50 mb-2"
-                            >
-                                {activeApiKeys.map((k) => (
-                                    <option key={k.id} value={k.id}>
-                                        {k.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </SelectWrapper>
-                        <div className="rounded-lg border border-dashed border-border bg-muted/20 px-3 py-2 text-[11.5px] text-muted-foreground">
-                            Using <span className="font-medium text-foreground">{selectedApiKey?.name || "the active key"}</span>
-                            {selectedApiKey?.rawKey ? (
-                                <>
-                                    {" "}
-                                    from backend
-                                    <span className="ml-1 font-mono text-[11px] text-foreground/80">
-                                        ({maskToken(selectedApiKey.rawKey)})
-                                    </span>
-                                </>
-                            ) : null}
-                        </div>
-                    </>
-                )}
-            </Field>
-
             {/* Submit */}
             <button
                 type="button"
