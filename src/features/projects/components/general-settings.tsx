@@ -16,10 +16,14 @@ import { toast } from "sonner";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { DeleteProjectDialog } from "@/features/projects/components/delete-project-dialog";
 import { useProjects } from "@/features/projects/context/projects-context";
-import { saveMetaWhatsappSettings } from "@/features/projects/services/project-service";
+import {
+  getMetaWhatsappSettings,
+  saveMetaWhatsappSettings,
+} from "@/features/projects/services/project-service";
 import type {
   Project,
   ProjectMetaWhatsappSettings,
+  MetaWhatsappSettingsResponse,
 } from "@/features/projects/types";
 
 export function GeneralSettings() {
@@ -43,6 +47,10 @@ export function GeneralSettings() {
   const [phoneNumberId, setPhoneNumberId] = useState("");
   const [accessToken, setAccessToken] = useState("");
   const [savingMeta, setSavingMeta] = useState(false);
+  const [loadingMeta, setLoadingMeta] = useState(false);
+  const [savedMeta, setSavedMeta] = useState<
+    MetaWhatsappSettingsResponse | null
+  >(null);
 
   const isOwner = !!project && !!user && project.ownerId === user.id;
   const metaWhatsapp = project?.settings?.metaWhatsapp as
@@ -50,12 +58,45 @@ export function GeneralSettings() {
     | undefined;
 
   useEffect(() => {
-    setBusinessId(metaWhatsapp?.businessId || "");
-    setBusinessName(metaWhatsapp?.businessName || "");
-    setWabaId(metaWhatsapp?.wabaId || "");
-    setPhoneNumberId(metaWhatsapp?.phoneNumberId || "");
-    setAccessToken("");
-  }, [metaWhatsapp, projectId]);
+    let active = true;
+
+    async function loadMetaSettings() {
+      setLoadingMeta(true);
+      try {
+        const settings = await getMetaWhatsappSettings(projectId);
+        if (!active) return;
+
+        setSavedMeta(settings);
+        setBusinessId(settings?.businessId || metaWhatsapp?.businessId || "");
+        setBusinessName(
+          settings?.businessName ?? metaWhatsapp?.businessName ?? "",
+        );
+        setWabaId(settings?.wabaId || metaWhatsapp?.wabaId || "");
+        setPhoneNumberId(
+          settings?.phoneNumberId || metaWhatsapp?.phoneNumberId || "",
+        );
+        setAccessToken("");
+      } catch {
+        if (!active) return;
+        setSavedMeta(null);
+        setBusinessId(metaWhatsapp?.businessId || "");
+        setBusinessName(metaWhatsapp?.businessName || "");
+        setWabaId(metaWhatsapp?.wabaId || "");
+        setPhoneNumberId(metaWhatsapp?.phoneNumberId || "");
+        setAccessToken("");
+      } finally {
+        if (active) {
+          setLoadingMeta(false);
+        }
+      }
+    }
+
+    loadMetaSettings();
+
+    return () => {
+      active = false;
+    };
+  }, [metaWhatsapp?.businessId, metaWhatsapp?.businessName, metaWhatsapp?.phoneNumberId, metaWhatsapp?.wabaId, projectId]);
 
   if (!project) {
     return (
@@ -93,11 +134,10 @@ export function GeneralSettings() {
     if (
       !businessId.trim() ||
       !wabaId.trim() ||
-      !phoneNumberId.trim() ||
-      !accessToken.trim()
+      !phoneNumberId.trim()
     ) {
       toast.error(
-        "Business ID, WABA ID, Phone Number ID, and access token are required",
+        "Business ID, WABA ID, and Phone Number ID are required",
       );
       return;
     }
@@ -109,10 +149,12 @@ export function GeneralSettings() {
         businessName: businessName.trim() || undefined,
         wabaId: wabaId.trim(),
         phoneNumberId: phoneNumberId.trim(),
-        accessToken: accessToken.trim(),
+        accessToken: accessToken.trim() || undefined,
       });
       toast.success("Meta WhatsApp settings saved");
       setAccessToken("");
+      const reloaded = await getMetaWhatsappSettings(project.id);
+      setSavedMeta(reloaded);
       await refresh();
     } catch (err) {
       const message =
@@ -219,6 +261,44 @@ export function GeneralSettings() {
           ) : null}
         </div>
 
+        <div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <div className="text-[11px] uppercase tracking-wide font-semibold text-emerald-800">
+                Loaded shared credentials
+              </div>
+              <div className="text-[12.5px] text-emerald-900 mt-1">
+                {loadingMeta
+                  ? "Reading the saved Meta WhatsApp credentials from the database..."
+                  : savedMeta
+                    ? "The shared Meta WhatsApp credentials below are loaded from the database and used across all projects."
+                    : "No shared Meta WhatsApp credentials have been saved yet."}
+              </div>
+            </div>
+            <div className="rounded-full bg-white border border-emerald-200 px-3 py-1 text-[11px] font-medium text-emerald-700">
+              {savedMeta?.accessTokenPresent
+                ? `Token saved ${savedMeta.accessTokenMasked || ""}`.trim()
+                : "Token not saved"}
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 text-[12px]">
+            <ReadOnlyField label="Business ID" value={savedMeta?.businessId || "Not saved"} />
+            <ReadOnlyField label="Business Name" value={savedMeta?.businessName || "Not saved"} />
+            <ReadOnlyField label="WABA ID" value={savedMeta?.wabaId || "Not saved"} />
+            <ReadOnlyField label="Phone Number ID" value={savedMeta?.phoneNumberId || "Not saved"} />
+            <ReadOnlyField label="Sender ID" value={savedMeta?.senderId || "Not saved"} />
+            <ReadOnlyField
+              label="Access Token"
+              value={
+                savedMeta?.accessTokenPresent
+                  ? savedMeta.accessTokenMasked || "Saved"
+                  : "Not saved"
+              }
+            />
+          </div>
+        </div>
+
         <div className="grid gap-4 md:grid-cols-2">
           <MetaField
             label="Business ID"
@@ -259,7 +339,7 @@ export function GeneralSettings() {
             value={accessToken}
             onChange={(e) => setAccessToken(e.target.value)}
             placeholder={
-              metaWhatsapp?.accessToken
+              savedMeta?.accessTokenPresent
                 ? "Re-enter to rotate the stored token"
                 : "Paste the Meta access token"
             }
@@ -267,7 +347,8 @@ export function GeneralSettings() {
           />
           <p className="mt-1.5 text-[11.5px] text-muted-foreground">
             The token is stored encrypted in the database and used by the server
-            when it creates templates or sends messages.
+            when it creates templates or sends messages. Leave this blank to
+            keep the currently saved token.
           </p>
         </div>
 
@@ -371,6 +452,25 @@ function MetaField({
       {helper ? (
         <p className="mt-1.5 text-[11.5px] text-muted-foreground">{helper}</p>
       ) : null}
+    </div>
+  );
+}
+
+function ReadOnlyField({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-xl border border-border/60 bg-white px-3.5 py-3">
+      <div className="text-[10.5px] uppercase tracking-wide font-semibold text-muted-foreground">
+        {label}
+      </div>
+      <div className="mt-1 text-[12.5px] font-medium text-foreground break-all">
+        {value}
+      </div>
     </div>
   );
 }

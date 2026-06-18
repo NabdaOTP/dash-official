@@ -70,8 +70,8 @@ export function SendMessageForm({
         [apiKeys, apiKeyId]
     );
 
-    const approvedTemplates = useMemo(
-        () => templates.filter((t) => t.status === "APPROVED"),
+    const sendableTemplates = useMemo(
+        () => templates.filter((t) => isSendableTemplate(t.status)),
         [templates]
     );
     const activeApiKeys = useMemo(
@@ -91,8 +91,8 @@ export function SendMessageForm({
                 if (cancelled) return;
                 setTemplates(tpls);
                 setApiKeys(keys);
-                const firstApproved = tpls.find((t) => t.status === "APPROVED");
-                if (firstApproved) setTemplateName(firstApproved.name);
+                const firstSendable = tpls.find((t) => isSendableTemplate(t.status));
+                if (firstSendable) setTemplateName(firstSendable.name);
                 const firstKey = keys.find((k) => k.isActive);
                 if (firstKey) setApiKeyId(firstKey.id);
             } catch (err) {
@@ -245,7 +245,7 @@ export function SendMessageForm({
         }
     };
 
-    const hasNoApprovedTemplates = !loadingData && approvedTemplates.length === 0;
+    const hasNoApprovedTemplates = !loadingData && sendableTemplates.length === 0;
     const hasNoActiveKeys = !loadingData && activeApiKeys.length === 0;
 
     return (
@@ -298,11 +298,11 @@ export function SendMessageForm({
             {/* Template */}
             <Field
                 label="Template"
-                helper="Only APPROVED templates can be used to send messages"
+                helper="Sendable templates loaded from Meta. Rejected, disabled, and draft templates are hidden."
                 icon={<FileText className="w-3.5 h-3.5" />}
             >
                 {hasNoApprovedTemplates ? (
-                    <EmptyHint text="No approved templates yet. Create and submit one first." />
+                    <EmptyHint text="No sendable templates yet. Sync templates from Meta or create one first." />
                 ) : (
                     <SelectWrapper>
                         <select
@@ -313,7 +313,7 @@ export function SendMessageForm({
                             className="appearance-none w-full h-10 px-3.5 pe-9 rounded-lg border border-border bg-background text-[13.5px] outline-none transition-colors focus:ring-2 focus:ring-[#7C3AED]/30 focus:border-[#7C3AED] disabled:opacity-50"
                         >
                             <option value="">Select a template…</option>
-                            {approvedTemplates.map((t) => (
+                            {sendableTemplates.map((t) => (
                                 <option key={t.id} value={t.name}>
                                     {t.name} ({t.language}) — {t.category}
                                 </option>
@@ -459,6 +459,12 @@ function buildCurl({
         `  -H "x-api-key: ${redactedToken.replace(/^Bearer /, "")}" \\`,
         `  -d '${body.replace(/'/g, "'\\''")}'`,
     ].join("\n");
+}
+
+function isSendableTemplate(status?: string | null): boolean {
+    if (!status) return false;
+    const normalized = status.toUpperCase();
+    return !["DRAFT", "REJECTED", "DISABLED"].includes(normalized);
 }
 
 // ─────────────────────────────────────────────────────────────

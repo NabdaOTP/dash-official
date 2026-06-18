@@ -20,7 +20,8 @@ export interface ProjectMetaWhatsappSettings {
   wabaId: string;
   phoneNumberId: string;
   senderId: string;
-  accessToken?: string;
+  accessTokenMasked?: string | null;
+  accessTokenPresent?: boolean;
   updatedAt?: string;
 }
 
@@ -124,5 +125,16 @@ export interface UpdateMetaWhatsappSettingsRequest {
   businessName?: string;
   wabaId: string;
   phoneNumberId: string;
-  accessToken: string;
+  accessToken?: string;
+}
+
+export interface MetaWhatsappSettingsResponse {
+  businessId: string;
+  businessName: string | null;
+  wabaId: string;
+  phoneNumberId: string;
+  senderId: string;
+  accessTokenMasked: string | null;
+  accessTokenPresent: boolean;
+  updatedAt: string;
 }

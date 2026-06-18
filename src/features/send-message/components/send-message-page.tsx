@@ -58,8 +58,8 @@ export function SendMessagePage() {
                 return;
             }
 
-            const hasApproved = templates.some((t) => t.status === "APPROVED");
-            if (!hasApproved) {
+            const hasSendableTemplate = templates.some((t) => isSendableTemplate(t.status));
+            if (!hasSendableTemplate) {
                 setPrereqStatus("no-template");
                 return;
             }
@@ -534,4 +534,14 @@ function formatContactDate(value: unknown): string {
         hour: "2-digit",
         minute: "2-digit",
     });
+}
+
+function isSendableTemplate(status?: string | null): boolean {
+    if (!status) return false;
+    const normalized = status.toUpperCase();
+    return ![
+        "DRAFT",
+        "REJECTED",
+        "DISABLED",
+    ].includes(normalized);
 }

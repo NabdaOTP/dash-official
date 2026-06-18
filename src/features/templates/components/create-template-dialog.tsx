@@ -92,17 +92,7 @@ export function CreateTemplateDialog({
     };
 
     const handleRecommendedSelect = () => {
-        setForm({
-            name: "promo_update_midyear",
-            category: "UTILITY",
-            language: "en_US",
-            headerText: "Mid-year update",
-            bodyText:
-                "Hello {{1}}, your account is now connected and your WhatsApp templates are ready for review.",
-            footerText: "Powered by Nabda WhatsApp",
-            includeCopyCodeButton: false,
-            copyCodeButtonText: "Copy Code",
-        });
+        setForm(TEMPLATE_PRESETS.otp_with_button.form);
         setStep("builder");
     };
 

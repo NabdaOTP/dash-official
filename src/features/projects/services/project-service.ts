@@ -4,6 +4,7 @@ import type {
   ProjectApiKey, CreateApiKeyResponse, CreateProjectResponse,
   CreateProjectRequest, InviteMemberRequest, UpdateMemberRoleRequest,
   CreateApiKeyRequest, AcceptInvitationRequest, ProjectRole,
+  MetaWhatsappSettingsResponse,
   UpdateMetaWhatsappSettingsRequest,
 } from "../types";
 
@@ -109,5 +110,14 @@ export async function saveMetaWhatsappSettings(
     `/projects/${projectId}/meta-whatsapp`,
     data satisfies UpdateMetaWhatsappSettingsRequest
   );
+}
+
+export async function getMetaWhatsappSettings(
+  projectId: string
+): Promise<MetaWhatsappSettingsResponse | null> {
+  const result = await api.get<MetaWhatsappSettingsResponse | null>(
+    `/projects/${projectId}/meta-whatsapp`
+  );
+  return result ?? null;
 }
  
