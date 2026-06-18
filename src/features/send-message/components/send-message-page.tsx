@@ -92,19 +92,6 @@ export function SendMessagePage() {
         void loadContacts();
     }, [loadContacts]);
 
-    useEffect(() => {
-        if (contacts.length === 0) {
-            setSelectedContactId(null);
-            return;
-        }
-
-        const stillSelected = contacts.some((contact) => contact.id === selectedContactId);
-        if (stillSelected) return;
-
-        const selected = contacts.find((contact) => contact.isSubscribed) || contacts[0];
-        setSelectedContactId(selected?.id ?? null);
-    }, [contacts, selectedContactId]);
-
     const selectedContact = useMemo(
         () => contacts.find((contact) => contact.id === selectedContactId) || null,
         [contacts, selectedContactId]
