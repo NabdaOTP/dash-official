@@ -26,7 +26,6 @@ import { WabaAccountCard } from "./waba-account-card";
 import { WabaInfoSidebar } from "./waba-info-sidebar";
 import { useWabaConnect } from "@/features/waba/hooks/use-waba-connect";
 import { WabaReviewTools } from "./waba-review-tools";
-import { WabaBusinessRecordingGuide } from "./waba-business-recording-guide";
 
 type ManagementTab = "overview" | "phones" | "templates" | "webhooks";
 
@@ -131,11 +130,6 @@ export function WabaPage() {
     return (
         <div className="space-y-6">
             <PageHeader />
-            <WabaBusinessRecordingGuide
-                projectId={projectId}
-                guide={guide}
-                accounts={accounts}
-            />
             <ManagementConsole
                 projectId={projectId}
                 accounts={accounts}
@@ -200,11 +194,6 @@ export function WabaPage() {
                         <WabaEmptyState
                             projectId={projectId}
                             onConnected={fetchStatus}
-                        />
-                        <WabaReviewTools
-                            projectId={projectId}
-                            accounts={accounts}
-                            onRefresh={fetchStatus}
                         />
                     </div>
                     <WabaInfoSidebar />

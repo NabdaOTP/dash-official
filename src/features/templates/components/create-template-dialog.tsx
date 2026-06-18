@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
     X, Loader2, FileText, Sparkles, Pencil, ArrowLeft,
     Plus, Minus, Send,
+    ShieldCheck, Boxes, Megaphone,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { createTemplate } from "@/features/templates/services/template-service";
+import { saveTemplateDraft } from "@/features/templates/services/template-service";
 import {
     buildComponents, validateTemplateName, validateBody, countVariables,
     TEMPLATE_PRESETS, EMPTY_FORM, SUPPORTED_LANGUAGES,
@@ -26,6 +27,8 @@ interface CreateTemplateDialogProps {
     projectId: string;
     wabaAccountId: string;
     onCreated: (template: MessageTemplate) => void;
+    mode?: "create" | "edit";
+    initialTemplate?: MessageTemplate | null;
 }
 
 type Step = "presets" | "builder";
@@ -35,21 +38,19 @@ const CATEGORIES = [
         id: "AUTHENTICATION" as const,
         label: "Authentication",
         description: "OTP and verification codes",
-        icon: "🔐",
+        icon: <ShieldCheck className="w-4 h-4" />,
     },
     {
         id: "UTILITY" as const,
         label: "Utility",
         description: "Order updates, appointments",
-        icon: "📦",
-        comingSoon: true,  // ← ADD this flag
+        icon: <Boxes className="w-4 h-4" />,
     },
     {
         id: "MARKETING" as const,
         label: "Marketing",
         description: "Promotional messages",
-        icon: "📣",
-        comingSoon: true,  // ← ADD this flag
+        icon: <Megaphone className="w-4 h-4" />,
     },
 ];
 
@@ -59,6 +60,8 @@ export function CreateTemplateDialog({
     projectId,
     wabaAccountId,
     onCreated,
+    mode = "create",
+    initialTemplate = null,
 }: CreateTemplateDialogProps) {
     const t = useTranslations("templates.createDialog");
     const tPresets = useTranslations("templates.createDialog.presets");
@@ -74,12 +77,12 @@ export function CreateTemplateDialog({
         (async () => {
             if (open) {
                 setStep("presets");
-                setForm(EMPTY_FORM);
+                setForm(initialTemplate ? templateToForm(initialTemplate) : EMPTY_FORM);
                 setErrors({});
                 setSubmitting(false);
             }
         })()
-    }, [open]);
+    }, [open, initialTemplate]);
 
     if (!open) return null;
 
@@ -137,16 +140,21 @@ export function CreateTemplateDialog({
         setSubmitting(true);
         try {
             const components = buildComponents(form);
-            const created = await createTemplate(projectId, {
+            const payload = {
                 name: form.name.trim(),
                 category: form.category,
                 language: form.language,
                 components,
                 wabaAccountId,
                 options: { allow_category_change: true },
-            });
-            toast.success(t("submitSuccess", { name: form.name }));
-            onCreated(created);
+            };
+            const saved = mode === "edit"
+                ? await saveTemplateDraft(projectId, payload)
+                : await createTemplate(projectId, payload);
+            toast.success(mode === "edit"
+                ? "Template draft saved"
+                : t("submitSuccess", { name: form.name }));
+            onCreated(saved);
             onClose();
         } catch (err) {
             console.error("Failed to create template:", err);
@@ -191,7 +199,11 @@ export function CreateTemplateDialog({
                                 {step === "presets" ? t("title") : t("builderTitle")}
                             </h2>
                             <p className="text-[12px] text-muted-foreground mt-0.5">
-                                {step === "presets" ? t("subtitle") : t("builderSubtitle")}
+                                {step === "presets"
+                                    ? t("subtitle")
+                                    : mode === "edit"
+                                        ? "Edit the draft fields below, then save the updated template."
+                                        : t("builderSubtitle")}
                             </p>
                         </div>
                     </div>
@@ -215,9 +227,11 @@ export function CreateTemplateDialog({
                                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                                         Recording helper
                                     </p>
-                                    <p className="mt-1 text-[12.5px] leading-relaxed text-foreground">
-                                        Load a demo template if you want a fast path through the create flow during recording.
-                                    </p>
+                                <p className="mt-1 text-[12.5px] leading-relaxed text-foreground">
+                                    {mode === "edit"
+                                        ? "This screen is editing a saved draft, so you can update the template and resubmit it."
+                                        : "Load a demo template if you want a fast path through the create flow during recording."}
+                                </p>
                                 </div>
                                 <button
                                     type="button"
@@ -276,39 +290,30 @@ export function CreateTemplateDialog({
                                 {/* Category + Language */}
                                 <div className="grid grid-cols-2 gap-3">
                                     <Field label={t("fields.category")} required>
-                                        <div className="grid grid-cols-3 gap-1.5">
+                                        <div className="grid grid-cols-1 gap-2">
                                             {CATEGORIES.map((cat) => {
-                                                const isDisabled = cat.comingSoon;
-                                                const isActive = form.category === cat.id && !isDisabled;
+                                                const isActive = form.category === cat.id;
 
                                                 return (
                                                     <button
                                                         key={cat.id}
                                                         type="button"
-                                                        onClick={() => !isDisabled && updateForm("category", cat.id)}
-                                                        disabled={isDisabled}
-                                                        title={isDisabled ? "Coming soon" : undefined}
-                                                        className={`relative rounded-lg p-3 text-left border transition-all ${isDisabled
-                                                            ? "bg-muted/30 border-border/40 cursor-not-allowed opacity-60"
-                                                            : isActive
-                                                                ? "bg-[#F8F7FF] border-[#7C3AED] cursor-pointer"
-                                                                : "bg-white border-border/60 hover:border-[#7C3AED]/40 cursor-pointer"
+                                                        onClick={() => updateForm("category", cat.id)}
+                                                        className={`relative rounded-xl p-3 text-left border transition-all cursor-pointer ${isActive
+                                                            ? "bg-[#F8F7FF] border-[#7C3AED] ring-1 ring-[#7C3AED]/10"
+                                                            : "bg-white border-border/60 hover:border-[#7C3AED]/40"
                                                             }`}
                                                     >
                                                         <div className="flex items-start gap-2.5">
-                                                            <div className="text-[18px] leading-none mt-0.5">{cat.icon}</div>
+                                                            <div className={`mt-0.5 inline-flex items-center justify-center w-8 h-8 rounded-lg ${isActive ? "bg-[#EDE9FE] text-[#7C3AED]" : "bg-muted/30 text-muted-foreground"}`}>
+                                                                {cat.icon}
+                                                            </div>
                                                             <div className="flex-1 min-w-0">
                                                                 <div className="flex items-center gap-1.5 flex-wrap">
                                                                     <p className={`text-[13px] font-semibold leading-tight ${isActive ? "text-[#7C3AED]" : "text-foreground"
                                                                         }`}>
                                                                         {cat.label}
                                                                     </p>
-                                                                    {isDisabled && (
-                                                                        <span className="inline-flex items-center gap-0.5 text-[9px] uppercase tracking-wide font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
-                                                                            <Lock className="w-2 h-2" />
-                                                                            Soon
-                                                                        </span>
-                                                                    )}
                                                                 </div>
                                                                 <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
                                                                     {cat.description}
@@ -477,7 +482,11 @@ export function CreateTemplateDialog({
                                 ) : (
                                     <Send className="w-3.5 h-3.5" />
                                 )}
-                                {submitting ? t("submitting") : t("submit")}
+                                {submitting
+                                    ? t("submitting")
+                                    : mode === "edit"
+                                        ? "Save draft"
+                                        : t("submit")}
                             </button>
                         </div>
                     </div>
@@ -602,4 +611,22 @@ function ToggleSection({
             {enabled && <div className="mt-3">{children}</div>}
         </div>
     );
+}
+
+function templateToForm(template: MessageTemplate): TemplateFormState {
+    const header = template.components?.find((component) => component.type === "HEADER")?.text ?? "";
+    const body = template.components?.find((component) => component.type === "BODY")?.text ?? "";
+    const footer = template.components?.find((component) => component.type === "FOOTER")?.text ?? "";
+    const copyCodeButton = template.components?.find((component) => component.type === "BUTTONS")?.buttons?.[0];
+
+    return {
+        name: template.name || "",
+        category: template.category,
+        language: template.language,
+        headerText: header,
+        bodyText: body,
+        footerText: footer,
+        includeCopyCodeButton: Boolean(copyCodeButton),
+        copyCodeButtonText: copyCodeButton?.text || "Copy Code",
+    };
 }

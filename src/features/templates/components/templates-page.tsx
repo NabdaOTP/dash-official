@@ -31,6 +31,7 @@ export function TemplatesPage() {
     const [error, setError] = useState<string | null>(null);
 
     const [createOpen, setCreateOpen] = useState(false);
+    const [editingTemplate, setEditingTemplate] = useState<MessageTemplate | null>(null);
     const [templateToDelete, setTemplateToDelete] =
         useState<MessageTemplate | null>(null);
     const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
@@ -68,6 +69,18 @@ export function TemplatesPage() {
     // ── handlers ─────────────────────────────────────────────
     const handleTemplateCreated = (template: MessageTemplate) => {
         setTemplates((prev) => [template, ...prev]);
+    };
+
+    const handleTemplateSaved = (template: MessageTemplate) => {
+        setTemplates((prev) => {
+            const exists = prev.some((tpl) => tpl.id === template.id);
+            if (exists) {
+                return prev.map((tpl) => (tpl.id === template.id ? template : tpl));
+            }
+            return [template, ...prev];
+        });
+        setSelectedTemplateId(template.id);
+        setEditingTemplate(null);
     };
 
     const handleTemplateRefreshed = (updated: MessageTemplate) => {
@@ -161,6 +174,7 @@ export function TemplatesPage() {
                                 onRefreshed={handleTemplateRefreshed}
                                 onDelete={(tpl) => setTemplateToDelete(tpl)}
                                 onSelect={(tpl) => setSelectedTemplateId(tpl.id)}
+                                onEdit={(tpl) => setEditingTemplate(tpl)}
                                 selected={selectedTemplate?.id === template.id}
                             />
                         ))}
@@ -175,11 +189,16 @@ export function TemplatesPage() {
 
             {/* Dialogs */}
             <CreateTemplateDialog
-                open={createOpen}
-                onClose={() => setCreateOpen(false)}
+                open={createOpen || editingTemplate !== null}
+                onClose={() => {
+                    setCreateOpen(false);
+                    setEditingTemplate(null);
+                }}
                 projectId={projectId}
                 wabaAccountId={wabaAccount.id}
-                onCreated={handleTemplateCreated}
+                onCreated={editingTemplate ? handleTemplateSaved : handleTemplateCreated}
+                mode={editingTemplate ? "edit" : "create"}
+                initialTemplate={editingTemplate}
             />
             <DeleteTemplateDialog
                 open={templateToDelete !== null}

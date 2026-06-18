@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import {
-    RefreshCw, Trash2, Loader2, Globe2, AlertCircle,
+    RefreshCw, Trash2, Loader2, Globe2, AlertCircle, Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -24,6 +24,7 @@ interface TemplateCardProps {
     onRefreshed: (updated: MessageTemplate) => void;
     onDelete: (template: MessageTemplate) => void;
     onSelect?: (template: MessageTemplate) => void;
+    onEdit?: (template: MessageTemplate) => void;
     selected?: boolean;
 }
 
@@ -34,6 +35,7 @@ export function TemplateCard({
     onRefreshed,
     onDelete,
     onSelect,
+    onEdit,
     selected,
 }: TemplateCardProps) {
     const t = useTranslations("templates.card");
@@ -140,6 +142,20 @@ export function TemplateCard({
                                 <RefreshCw className="w-3.5 h-3.5" />
                             )}
                             {t("refresh")}
+                        </button>
+                    )}
+                    {onEdit && (
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onEdit(template);
+                            }}
+                            title="Edit draft"
+                            className="cursor-pointer h-8 px-2.5 rounded-lg text-[12px] font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-[0.99] transition-all flex items-center gap-1.5"
+                        >
+                            <Pencil className="w-3.5 h-3.5" />
+                            Edit
                         </button>
                     )}
                     <button

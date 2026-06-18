@@ -6,6 +6,7 @@ import { api } from "@/lib/api-client";
 import type {
     MessageTemplate,
     CreateTemplateRequest,
+    TemplateFormState,
 } from "../types";
 
 /**
@@ -33,6 +34,21 @@ export async function createTemplate(
 ): Promise<MessageTemplate> {
     return api.post<MessageTemplate>(
         `/projects/${projectId}/waba/templates`,
+        data
+    );
+}
+
+/**
+ * Save or update a local template draft.
+ *
+ * POST /api/v1/projects/{projectId}/waba/templates/drafts
+ */
+export async function saveTemplateDraft(
+    projectId: string,
+    data: CreateTemplateRequest
+): Promise<MessageTemplate> {
+    return api.post<MessageTemplate>(
+        `/projects/${projectId}/waba/templates/drafts`,
         data
     );
 }
