@@ -12,8 +12,8 @@ export async function sendMessage(
     apiKey: string,
     data: SendMessageRequest
 ): Promise<SendMessageResponse> {
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
-    const url = `${baseUrl}/api/v1/external/waba/${phoneNumberId}/messages`;
+    const baseUrl = resolveWhatsAppApiBaseUrl();
+    const url = `${baseUrl}/external/waba/${phoneNumberId}/messages`;
 
     const response = await fetch(url, {
         method: "POST",
@@ -47,4 +47,21 @@ export async function sendMessage(
             : body;
 
     return (result ?? {}) as SendMessageResponse;
+}
+
+function resolveWhatsAppApiBaseUrl(): string {
+    const configured = process.env.NEXT_PUBLIC_API_URL?.trim();
+    const fallback = "https://connect.nabda-otp.com/api/v1";
+
+    const raw = configured || fallback;
+
+    try {
+        const parsed = new URL(raw);
+        if (parsed.hostname === "app.nabda-otp.com") {
+            parsed.hostname = "connect.nabda-otp.com";
+        }
+        return parsed.toString().replace(/\/$/, "");
+    } catch {
+        return raw.replace(/\/$/, "");
+    }
 }

@@ -51,7 +51,11 @@ export function WabaPage() {
                 getTemplates(projectId).catch(() => [] as MessageTemplate[]),
             ]);
             setIsConnected(status.isConnected);
-            setAccounts(status.accounts);
+            setAccounts(
+                [...status.accounts].sort(
+                    (a, b) => Number(isSharedAccount(b)) - Number(isSharedAccount(a))
+                )
+            );
             setGuide(reviewGuide);
             setTemplates(projectTemplates);
             if (!selectedTemplateId && projectTemplates[0]) {
@@ -273,8 +277,12 @@ function ManagementConsole({
                 {selectedTab === "overview" && (
                     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
                         <SummaryCard
-                            label="Business portfolio"
-                            value={guide?.sampleValues.businessName || activeAccount?.name || "Connected business"}
+                            label="Shared test creds"
+                            value={
+                                guide?.sampleValues.businessName ||
+                                activeAccount?.name ||
+                                "Connected test sender"
+                            }
                             icon={<Building2 className="w-4 h-4" />}
                         />
                         <SummaryCard
@@ -509,6 +517,10 @@ function SummaryCard({
             </p>
         </div>
     );
+}
+
+function isSharedAccount(account: Pick<WabaAccount, "id">): boolean {
+    return account.id.startsWith("shared-meta-");
 }
 
 function TabChip({

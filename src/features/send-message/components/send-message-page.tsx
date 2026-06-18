@@ -50,7 +50,9 @@ export function SendMessagePage() {
                 getTemplates(projectId).catch(() => [] as MessageTemplate[]),
             ]);
 
-            const usableAccounts = status.accounts.filter((a) => a.isActive && !a.needsReauth);
+            const usableAccounts = status.accounts
+                .filter((a) => a.isActive && !a.needsReauth)
+                .sort((a, b) => Number(isSharedAccount(b)) - Number(isSharedAccount(a)));
             setAccounts(usableAccounts);
 
             if (!status.isConnected || usableAccounts.length === 0) {
@@ -188,11 +190,6 @@ export function SendMessagePage() {
                 />
 
                 <div className="lg:sticky lg:top-6 space-y-4">
-                    <CustomerProofCard
-                        contacts={contacts}
-                        selectedContact={selectedContact}
-                        onSelectContact={setSelectedContactId}
-                    />
                     <MessagingProofPanel
                         contact={selectedContact}
                         account={accounts[0] || null}
@@ -544,4 +541,8 @@ function isSendableTemplate(status?: string | null): boolean {
         "REJECTED",
         "DISABLED",
     ].includes(normalized);
+}
+
+function isSharedAccount(account: Pick<WabaAccount, "id">): boolean {
+    return account.id.startsWith("shared-meta-");
 }
