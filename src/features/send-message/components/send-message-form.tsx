@@ -43,7 +43,6 @@ export function SendMessageForm({
     );
     const [templateName, setTemplateName] = useState("");
     const [apiKeyId, setApiKeyId] = useState("");
-    const [rawApiKey, setRawApiKey] = useState("");
     const [variables, setVariables] = useState<VariableRow[]>([]);
 
     // ── data ─────────────────────────────────────────────────
@@ -65,6 +64,10 @@ export function SendMessageForm({
     const selectedTemplate = useMemo(
         () => templates.find((t) => t.name === templateName),
         [templates, templateName]
+    );
+    const selectedApiKey = useMemo(
+        () => apiKeys.find((k) => k.id === apiKeyId) || apiKeys.find((k) => k.isActive),
+        [apiKeys, apiKeyId]
     );
 
     const approvedTemplates = useMemo(
@@ -159,7 +162,7 @@ export function SendMessageForm({
             return "Phone must be 8-15 digits in international format";
         if (!selectedAccount) return "Select a sender account";
         if (!templateName) return "Select an approved template";
-        if (!rawApiKey.trim()) return "Paste your API key";
+        if (!selectedApiKey?.rawKey?.trim()) return "Create or select an active API key";
         // Check that all variables are filled
         for (let i = 0; i < variables.length; i++) {
             if (!variables[i].value.trim()) {
@@ -182,10 +185,15 @@ export function SendMessageForm({
         try {
             const cleanRecipient = recipient.replace(/[^0-9]/g, "");
             const varsArray = variables.map((v) => v.value.trim());
+            const apiKey = selectedApiKey?.rawKey?.trim();
+            if (!apiKey) {
+                toast.error("Create or select an active API key");
+                return;
+            }
 
             const response = await sendMessage(
                 selectedAccount.phoneNumberId,
-                rawApiKey,
+                apiKey,
                 {
                     to: cleanRecipient,
                     templateName,
@@ -209,7 +217,7 @@ export function SendMessageForm({
                 language: selectedTemplate.language,
                 variables: varsArray.length > 0 ? varsArray : undefined,
             };
-            const redactedToken = maskToken(rawApiKey);
+            const redactedToken = maskToken(apiKey);
             const requestCurl = buildCurl({
                 phoneNumberId: selectedAccount.phoneNumberId,
                 requestBody,
@@ -350,8 +358,8 @@ export function SendMessageForm({
 
             {/* API key */}
             <Field
-                label="API Key"
-                helper="Paste an active API key. It's used only in this browser and never stored."
+                label="Project API Key"
+                helper="Loaded from the backend for the selected project. No copy/paste needed."
                 icon={<KeyRound className="w-3.5 h-3.5" />}
             >
                 {hasNoActiveKeys && (
@@ -374,15 +382,18 @@ export function SendMessageForm({
                                 ))}
                             </select>
                         </SelectWrapper>
-                        <input
-                            type="password"
-                            value={rawApiKey}
-                            onChange={(e) => setRawApiKey(e.target.value)}
-                            placeholder="sk_live_..."
-                            disabled={submitting}
-                            autoComplete="off"
-                            className="w-full h-10 px-3.5 rounded-lg border border-border bg-background font-mono text-[13px] outline-none transition-colors focus:ring-2 focus:ring-[#7C3AED]/30 focus:border-[#7C3AED] disabled:opacity-50"
-                        />
+                        <div className="rounded-lg border border-dashed border-border bg-muted/20 px-3 py-2 text-[11.5px] text-muted-foreground">
+                            Using <span className="font-medium text-foreground">{selectedApiKey?.name || "the active key"}</span>
+                            {selectedApiKey?.rawKey ? (
+                                <>
+                                    {" "}
+                                    from backend
+                                    <span className="ml-1 font-mono text-[11px] text-foreground/80">
+                                        ({maskToken(selectedApiKey.rawKey)})
+                                    </span>
+                                </>
+                            ) : null}
+                        </div>
                     </>
                 )}
             </Field>

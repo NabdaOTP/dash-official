@@ -27,7 +27,6 @@ import type { MessageSendResult } from "@/features/send-message/types";
 import type { MessageTemplate } from "@/features/templates/types";
 
 import { SendMessageForm } from "./send-message-form";
-import { RecordingPlaybook } from "./recording-playbook";
 import { MessagingProofPanel } from "./messaging-proof-panel";
 
 type PrereqStatus = "loading" | "ready" | "no-waba" | "no-template" | "error";
@@ -179,8 +178,6 @@ export function SendMessagePage() {
     return (
         <div className="space-y-6">
             <PageHeader />
-
-            <RecordingPlaybook projectId={projectId} />
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6 items-start">
                 <SendMessageForm

@@ -17,7 +17,6 @@ import type { WabaAccount } from "@/features/waba/types";
 import { TemplateCard } from "./template-card";
 import { CreateTemplateDialog } from "./create-template-dialog";
 import { DeleteTemplateDialog } from "./delete-template-dialog";
-import { TemplatesRecordingGuide } from "./templates-recording-guide";
 
 export function TemplatesPage() {
     const t = useTranslations("templates");
@@ -98,6 +97,8 @@ export function TemplatesPage() {
 
     const selectedTemplate =
         templates.find((template) => template.id === selectedTemplateId) ?? templates[0] ?? null;
+    const approvedCount = templates.filter((template) => template.status === "APPROVED").length;
+    const pendingCount = templates.filter((template) => template.status === "PENDING").length;
 
     // ── Loading state ────────────────────────────────────────
     if (loading) {
@@ -158,13 +159,28 @@ export function TemplatesPage() {
                 }
             />
 
-            <TemplatesRecordingGuide projectId={projectId} />
+            <div className="grid gap-3 md:grid-cols-4">
+                <SummaryCard label="Connected WABA" value={wabaAccount?.name || "No WABA connected"} />
+                <SummaryCard label="Templates" value={String(templates.length)} />
+                <SummaryCard label="Approved" value={String(approvedCount)} />
+                <SummaryCard label="Pending" value={String(pendingCount)} />
+            </div>
 
             {templates.length === 0 ? (
                 <EmptyTemplatesState onCreate={() => setCreateOpen(true)} />
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-4 items-start">
                     <div className="space-y-3">
+                        <div className="flex items-center justify-between gap-3 flex-wrap">
+                            <div>
+                                <h2 className="text-base font-semibold text-foreground">
+                                    Template Library
+                                </h2>
+                                <p className="text-[12px] text-muted-foreground mt-0.5">
+                                    Create, refresh, edit drafts, or delete templates for this connected WABA.
+                                </p>
+                            </div>
+                        </div>
                         {templates.map((template) => (
                             <TemplateCard
                                 key={template.id}
@@ -360,6 +376,25 @@ function ComponentBlock({ label, value }: { label: string; value: string }) {
         <div className="mt-3">
             <p className="text-[11px] font-semibold text-foreground/80">{label}</p>
             <p className="mt-1 rounded-lg border border-border/40 bg-white px-3 py-2 text-[12.5px] text-foreground leading-relaxed">
+                {value}
+            </p>
+        </div>
+    );
+}
+
+function SummaryCard({
+    label,
+    value,
+}: {
+    label: string;
+    value: string;
+}) {
+    return (
+        <div className="rounded-2xl border border-border/60 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                {label}
+            </p>
+            <p className="mt-2 text-[13px] font-semibold text-foreground break-words">
                 {value}
             </p>
         </div>

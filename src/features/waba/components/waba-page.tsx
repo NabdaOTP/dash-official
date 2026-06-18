@@ -25,7 +25,6 @@ import { WabaEmptyState } from "./waba-empty-state";
 import { WabaAccountCard } from "./waba-account-card";
 import { WabaInfoSidebar } from "./waba-info-sidebar";
 import { useWabaConnect } from "@/features/waba/hooks/use-waba-connect";
-import { WabaReviewTools } from "./waba-review-tools";
 
 type ManagementTab = "overview" | "phones" | "templates" | "webhooks";
 
@@ -179,11 +178,6 @@ export function WabaPage() {
                             />
                         ))}
 
-                        <WabaReviewTools
-                            projectId={projectId}
-                            accounts={accounts}
-                            onRefresh={fetchStatus}
-                        />
                     </div>
 
                     <WabaInfoSidebar />
@@ -413,14 +407,6 @@ function ManagementConsole({
                     </div>
                 )}
 
-                <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white p-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-                        Summary line for recording
-                    </p>
-                    <p className="mt-1 text-[12.5px] leading-relaxed text-slate-800">
-                        Our platform uses whatsapp_business_management to let businesses connect their WhatsApp Business Account, read their WABA and phone assets, and create/manage message templates from our dashboard.
-                    </p>
-                </div>
             </div>
         </section>
     );

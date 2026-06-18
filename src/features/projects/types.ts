@@ -6,12 +6,27 @@ export interface Project {
   ownerId: string;
   createdAt: string;
   updatedAt: string;
-  settings: Record<string, unknown>;
+  settings: ProjectSettings;
   isActive: boolean;
 }
 
 export interface ProjectDetails extends Project {
   apiKeys?: ProjectApiKey[];
+}
+
+export interface ProjectMetaWhatsappSettings {
+  businessId: string;
+  businessName: string | null;
+  wabaId: string;
+  phoneNumberId: string;
+  senderId: string;
+  accessToken?: string;
+  updatedAt?: string;
+}
+
+export interface ProjectSettings {
+  metaWhatsapp?: ProjectMetaWhatsappSettings;
+  [key: string]: unknown;
 }
 
 // Project Members
@@ -102,4 +117,12 @@ export interface CreateApiKeyRequest {
 
 export interface AcceptInvitationRequest {
   token: string;
+}
+
+export interface UpdateMetaWhatsappSettingsRequest {
+  businessId: string;
+  businessName?: string;
+  wabaId: string;
+  phoneNumberId: string;
+  accessToken: string;
 }

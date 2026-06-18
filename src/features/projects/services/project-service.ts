@@ -4,6 +4,7 @@ import type {
   ProjectApiKey, CreateApiKeyResponse, CreateProjectResponse,
   CreateProjectRequest, InviteMemberRequest, UpdateMemberRoleRequest,
   CreateApiKeyRequest, AcceptInvitationRequest, ProjectRole,
+  UpdateMetaWhatsappSettingsRequest,
 } from "../types";
 
 // ── Projects CRUD ──
@@ -98,5 +99,15 @@ export async function revokeApiKey(
 
 export async function deleteProject(projectId: string): Promise<void> {
   return api.delete<void>(`/projects/${projectId}`);
+}
+
+export async function saveMetaWhatsappSettings(
+  projectId: string,
+  data: UpdateMetaWhatsappSettingsRequest
+): Promise<unknown> {
+  return api.post<unknown>(
+    `/projects/${projectId}/meta-whatsapp`,
+    data satisfies UpdateMetaWhatsappSettingsRequest
+  );
 }
  
