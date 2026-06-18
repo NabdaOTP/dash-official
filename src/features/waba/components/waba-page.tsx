@@ -275,37 +275,42 @@ function ManagementConsole({
 
             <div className="p-5 sm:p-6">
                 {selectedTab === "overview" && (
-                    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-                        <SummaryCard
-                            label="Shared test creds"
-                            value={
-                                guide?.sampleValues.businessName ||
-                                activeAccount?.name ||
-                                "Connected test sender"
-                            }
-                            icon={<Building2 className="w-4 h-4" />}
-                        />
-                        <SummaryCard
-                            label="Business ID"
-                            value={maskId(guide?.sampleValues.businessId || "")}
-                            icon={<UserRound className="w-4 h-4" />}
-                        />
-                        <SummaryCard
-                            label="WABA ID"
-                            value={maskId(guide?.sampleValues.wabaId || activeAccount?.id || "")}
-                            icon={<CheckCircle2 className="w-4 h-4" />}
-                        />
-                        <SummaryCard
-                            label="Phone Number ID"
-                            value={maskId(guide?.sampleValues.phoneNumberId || activeAccount?.phoneNumberId || "")}
-                            icon={<Phone className="w-4 h-4" />}
-                        />
-                        <SummaryCard
-                            label="Status"
-                            value={activeAccount ? "Connected / active" : "Waiting for connection"}
-                            icon={<Building2 className="w-4 h-4" />}
-                        />
-                    </div>
+                    activeAccount ? (
+                        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                            <SummaryCard
+                                label="Connected account"
+                                value={activeAccount.name || "WhatsApp Business"}
+                                icon={<Building2 className="w-4 h-4" />}
+                            />
+                            <SummaryCard
+                                label="Phone number"
+                                value={activeAccount.displayPhoneNumber || "Not set"}
+                                icon={<Phone className="w-4 h-4" />}
+                            />
+                            <SummaryCard
+                                label="Phone Number ID"
+                                value={maskId(activeAccount.phoneNumberId || "")}
+                                icon={<CheckCircle2 className="w-4 h-4" />}
+                            />
+                            <SummaryCard
+                                label="Status"
+                                value={activeAccount ? "Connected / active" : "Waiting for connection"}
+                                icon={<Building2 className="w-4 h-4" />}
+                            />
+                        </div>
+                    ) : (
+                        <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 p-8 text-center">
+                            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EDE9FE] text-[#7C3AED]">
+                                <MessageCircle className="h-6 w-6" />
+                            </div>
+                            <h3 className="text-[16px] font-semibold text-slate-900">
+                                Connect WhatsApp Business
+                            </h3>
+                            <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-slate-600">
+                                Connect a WhatsApp Business Account to reveal the account details, phone number, templates, and webhook settings here.
+                            </p>
+                        </div>
+                    )
                 )}
 
                 {selectedTab === "phones" && (
