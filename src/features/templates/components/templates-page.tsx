@@ -17,6 +17,7 @@ import type { WabaAccount } from "@/features/waba/types";
 import { TemplateCard } from "./template-card";
 import { CreateTemplateDialog } from "./create-template-dialog";
 import { DeleteTemplateDialog } from "./delete-template-dialog";
+import { TemplatesRecordingGuide } from "./templates-recording-guide";
 
 export function TemplatesPage() {
     const t = useTranslations("templates");
@@ -32,6 +33,7 @@ export function TemplatesPage() {
     const [createOpen, setCreateOpen] = useState(false);
     const [templateToDelete, setTemplateToDelete] =
         useState<MessageTemplate | null>(null);
+    const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
     const fetchAll = useCallback(async () => {
         if (!projectId) return;
@@ -45,13 +47,16 @@ export function TemplatesPage() {
             setIsWabaConnected(status.isConnected);
             setWabaAccount(status.accounts[0] ?? null);
             setTemplates(templatesResult);
+            if (!selectedTemplateId && templatesResult[0]) {
+                setSelectedTemplateId(templatesResult[0].id);
+            }
         } catch (err) {
             console.error("Failed to load templates:", err);
             setError(t("loadError"));
         } finally {
             setLoading(false);
         }
-    }, [projectId, t]);
+    }, [projectId, selectedTemplateId, t]);
 
     useEffect(() => {
         (async () => {
@@ -73,7 +78,13 @@ export function TemplatesPage() {
 
     const handleTemplateDeleted = (templateId: string) => {
         setTemplates((prev) => prev.filter((tpl) => tpl.id !== templateId));
+        if (selectedTemplateId === templateId) {
+            setSelectedTemplateId(null);
+        }
     };
+
+    const selectedTemplate =
+        templates.find((template) => template.id === selectedTemplateId) ?? templates[0] ?? null;
 
     // ── Loading state ────────────────────────────────────────
     if (loading) {
@@ -134,20 +145,31 @@ export function TemplatesPage() {
                 }
             />
 
+            <TemplatesRecordingGuide projectId={projectId} />
+
             {templates.length === 0 ? (
                 <EmptyTemplatesState onCreate={() => setCreateOpen(true)} />
             ) : (
-                <div className="space-y-3">
-                    {templates.map((template) => (
-                        <TemplateCard
-                            key={template.id}
-                            template={template}
-                            projectId={projectId}
-                            wabaAccountId={wabaAccount.id}
-                            onRefreshed={handleTemplateRefreshed}
-                            onDelete={(tpl) => setTemplateToDelete(tpl)}
-                        />
-                    ))}
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-4 items-start">
+                    <div className="space-y-3">
+                        {templates.map((template) => (
+                            <TemplateCard
+                                key={template.id}
+                                template={template}
+                                projectId={projectId}
+                                wabaAccountId={wabaAccount.id}
+                                onRefreshed={handleTemplateRefreshed}
+                                onDelete={(tpl) => setTemplateToDelete(tpl)}
+                                onSelect={(tpl) => setSelectedTemplateId(tpl.id)}
+                                selected={selectedTemplate?.id === template.id}
+                            />
+                        ))}
+                    </div>
+
+                    <TemplateDetailsPanel
+                        template={selectedTemplate}
+                        wabaAccount={wabaAccount}
+                    />
                 </div>
             )}
 
@@ -246,6 +268,81 @@ function EmptyTemplatesState({ onCreate }: { onCreate: () => void }) {
                 <Plus className="w-3.5 h-3.5" />
                 {t("createButton")}
             </button>
+        </div>
+    );
+}
+
+function TemplateDetailsPanel({
+    template,
+    wabaAccount,
+}: {
+    template: MessageTemplate | null;
+    wabaAccount: WabaAccount | null;
+}) {
+    if (!template) {
+        return (
+            <div className="rounded-2xl border border-dashed border-border bg-white p-6 text-center text-[12px] text-muted-foreground">
+                Select a template to view its details.
+            </div>
+        );
+    }
+
+    const header = template.components?.find((c) => c.type === "HEADER")?.text ?? "";
+    const body = template.components?.find((c) => c.type === "BODY")?.text ?? "";
+    const footer = template.components?.find((c) => c.type === "FOOTER")?.text ?? "";
+
+    return (
+        <div className="rounded-2xl border border-border/60 bg-white p-5 space-y-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] lg:sticky lg:top-6">
+            <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                    Template details
+                </p>
+                <h3 className="mt-1 text-[16px] font-semibold text-foreground font-mono">
+                    {template.name}
+                </h3>
+                <p className="mt-1 text-[12px] text-muted-foreground">
+                    {wabaAccount?.name || "Connected WABA"}
+                </p>
+            </div>
+
+            <div className="space-y-2">
+                <Line label="Status" value={template.status} />
+                <Line label="Language" value={template.language} />
+                <Line label="Category" value={template.category} />
+            </div>
+
+            <div className="rounded-xl border border-border/60 bg-muted/20 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                    Components
+                </p>
+                {header && <ComponentBlock label="Header" value={header} />}
+                {body && <ComponentBlock label="Body" value={body} />}
+                {footer && <ComponentBlock label="Footer" value={footer} />}
+            </div>
+        </div>
+    );
+}
+
+function Line({ label, value }: { label: string; value: string }) {
+    return (
+        <div className="flex items-start justify-between gap-3 rounded-xl border border-border/40 bg-muted/20 px-3 py-2">
+            <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                {label}
+            </p>
+            <p className="max-w-[70%] text-right text-[12.5px] text-foreground break-words">
+                {value}
+            </p>
+        </div>
+    );
+}
+
+function ComponentBlock({ label, value }: { label: string; value: string }) {
+    return (
+        <div className="mt-3">
+            <p className="text-[11px] font-semibold text-foreground/80">{label}</p>
+            <p className="mt-1 rounded-lg border border-border/40 bg-white px-3 py-2 text-[12.5px] text-foreground leading-relaxed">
+                {value}
+            </p>
         </div>
     );
 }

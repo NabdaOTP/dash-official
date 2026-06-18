@@ -23,6 +23,8 @@ interface TemplateCardProps {
     wabaAccountId?: string;
     onRefreshed: (updated: MessageTemplate) => void;
     onDelete: (template: MessageTemplate) => void;
+    onSelect?: (template: MessageTemplate) => void;
+    selected?: boolean;
 }
 
 export function TemplateCard({
@@ -31,6 +33,8 @@ export function TemplateCard({
     wabaAccountId,
     onRefreshed,
     onDelete,
+    onSelect,
+    selected,
 }: TemplateCardProps) {
     const t = useTranslations("templates.card");
     const locale = useLocale();
@@ -81,7 +85,19 @@ export function TemplateCard({
     };
 
     return (
-        <div className="rounded-2xl border border-border/60 bg-white p-5 hover:border-[#7C3AED]/30 transition-colors shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+        <div
+            role={onSelect ? "button" : undefined}
+            tabIndex={onSelect ? 0 : undefined}
+            onClick={() => onSelect?.(template)}
+            onKeyDown={(e) => {
+                if (!onSelect) return;
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onSelect(template);
+                }
+            }}
+            className={`rounded-2xl border bg-white p-5 transition-colors shadow-[0_1px_3px_rgba(0,0,0,0.04)] ${selected ? "border-[#7C3AED] ring-1 ring-[#7C3AED]/20" : "border-border/60 hover:border-[#7C3AED]/30"}`}
+        >
             {/* Header row */}
             <div className="flex items-start justify-between gap-3 flex-wrap mb-3">
                 <div className="min-w-0 flex-1">
@@ -110,7 +126,10 @@ export function TemplateCard({
                     {isPending && (
                         <button
                             type="button"
-                            onClick={handleRefresh}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleRefresh();
+                            }}
                             disabled={refreshing}
                             title={t("refreshTooltip")}
                             className="cursor-pointer h-8 px-2.5 rounded-lg text-[12px] font-medium text-[#7C3AED] bg-[#EDE9FE]/60 hover:bg-[#EDE9FE] active:scale-[0.99] transition-all flex items-center gap-1.5 disabled:opacity-60"
@@ -125,7 +144,10 @@ export function TemplateCard({
                     )}
                     <button
                         type="button"
-                        onClick={() => onDelete(template)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(template);
+                        }}
                         title={t("deleteTooltip")}
                         className="cursor-pointer w-8 h-8 rounded-lg text-red-600 hover:bg-red-50 active:scale-[0.99] transition-all flex items-center justify-center"
                     >

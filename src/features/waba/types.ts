@@ -39,6 +39,43 @@ export interface WabaStatus {
   accounts: WabaAccount[];
 }
 
+export interface WabaAppReviewPermissionGuide {
+  permission: string;
+  title: string;
+  purpose: string;
+  whyNeeded: string;
+  reviewerSees: string;
+  demoAction: string;
+  backendProof: string[];
+}
+
+export interface WabaAppReviewGuide {
+  generatedAt: string;
+  projectId: string;
+  readiness: {
+    activeAccounts: number;
+    totalAccounts: number;
+    totalTemplates: number;
+    approvedTemplates: number;
+    canSendTestMessage: boolean;
+    webhookPath: string;
+    callbackPath: string;
+  };
+  permissions: WabaAppReviewPermissionGuide[];
+  demoScript: Array<{
+    title: string;
+    description: string;
+  }>;
+  sampleValues: {
+    businessId: string;
+    businessName: string;
+    wabaId: string;
+    phoneNumberId: string;
+    recipient: string;
+    accessTokenNote: string;
+  };
+}
+
 
 /**
  * Response from GET /projects/{id}/waba/status

@@ -13,7 +13,10 @@ import { getProjectApiKeys } from "@/features/projects/services/project-service"
 import type { MessageTemplate } from "@/features/templates/types";
 import type { ProjectApiKey } from "@/features/projects/types";
 import type { WabaAccount } from "@/features/waba/types";
-import type { MessageSendResult } from "@/features/send-message/types";
+import type {
+    MessageSendEvidence,
+    MessageSendResult,
+} from "@/features/send-message/types";
 
 interface VariableRow {
     id: string;
@@ -23,12 +26,14 @@ interface VariableRow {
 interface SendMessageFormProps {
     projectId: string;
     accounts: WabaAccount[];
-    onSent: (result: MessageSendResult, apiKeyUsed: string) => void;
+    initialRecipient?: string;
+    onSent: (result: MessageSendResult, evidence: MessageSendEvidence) => void;
 }
 
 export function SendMessageForm({
     projectId,
     accounts,
+    initialRecipient,
     onSent,
 }: SendMessageFormProps) {
     // ── form state ───────────────────────────────────────────
@@ -46,6 +51,11 @@ export function SendMessageForm({
     const [apiKeys, setApiKeys] = useState<ProjectApiKey[]>([]);
     const [loadingData, setLoadingData] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (!initialRecipient) return;
+        setRecipient((current) => current.trim() ? current : initialRecipient);
+    }, [initialRecipient]);
 
     const selectedAccount = useMemo(
         () => accounts.find((a) => a.id === senderAccountId),
@@ -92,6 +102,15 @@ export function SendMessageForm({
             cancelled = true;
         };
     }, [projectId]);
+
+    useEffect(() => {
+        if (accounts.length === 0) return;
+
+        const selectedStillExists = accounts.some((account) => account.id === senderAccountId);
+        if (!selectedStillExists) {
+            setSenderAccountId(accounts[0].id);
+        }
+    }, [accounts, senderAccountId]);
 
     // ── extract variable placeholders from the selected template ───
     const variableCount = useMemo(() => {
@@ -183,7 +202,31 @@ export function SendMessageForm({
                 sentAt: new Date(),
                 messageId: response.messageId,
             };
-            onSent(result, rawApiKey);
+
+            const requestBody = {
+                to: cleanRecipient,
+                templateName,
+                language: selectedTemplate.language,
+                variables: varsArray.length > 0 ? varsArray : undefined,
+            };
+            const redactedToken = maskToken(rawApiKey);
+            const requestCurl = buildCurl({
+                phoneNumberId: selectedAccount.phoneNumberId,
+                requestBody,
+                redactedToken,
+                baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL ?? "",
+            });
+            const evidence: MessageSendEvidence = {
+                endpoint: `/api/v1/external/waba/${selectedAccount.phoneNumberId}/messages`,
+                method: "POST",
+                requestBody,
+                requestCurl,
+                redactedToken,
+                responseBody: JSON.stringify(response, null, 2),
+            };
+
+            result.evidence = evidence;
+            onSent(result, evidence);
             toast.success("Message sent successfully");
         } catch (err) {
             const message = err instanceof Error ? err.message : "Failed to send";
@@ -370,6 +413,41 @@ export function SendMessageForm({
             </button>
         </div>
     );
+}
+
+function maskToken(token: string): string {
+    const clean = token.trim();
+    if (!clean) return "Bearer [redacted]";
+    const tail = clean.slice(-4);
+    return `Bearer ********${tail}`;
+}
+
+function buildCurl({
+    phoneNumberId,
+    requestBody,
+    redactedToken,
+    baseUrl,
+}: {
+    phoneNumberId: string;
+    requestBody: {
+        to: string;
+        templateName: string;
+        language?: string;
+        variables?: string[];
+    };
+    redactedToken: string;
+    baseUrl: string;
+}): string {
+    const endpoint = `${baseUrl}/api/v1/external/waba/${phoneNumberId}/messages`;
+    const body = JSON.stringify(requestBody);
+
+    return [
+        `curl -X POST "${endpoint}" \\`,
+        `  -H "Content-Type: application/json" \\`,
+        `  -H "Authorization: ${redactedToken}" \\`,
+        `  -H "x-api-key: ${redactedToken.replace(/^Bearer /, "")}" \\`,
+        `  -d '${body.replace(/'/g, "'\\''")}'`,
+    ].join("\n");
 }
 
 // ─────────────────────────────────────────────────────────────

@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import {
-    User, Phone, Copy, Check, Hash, Calendar, Pencil, Trash2,
+    User, Phone, Copy, Check, Hash, Calendar,
     BellOff, CheckCircle2, Plus, Info,
+    ShieldCheck, Clock3, MessageSquareText, HandHeart,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -62,6 +63,7 @@ export function ContactDetails({ contact, onAddNew }: ContactDetailsProps) {
             ([, v]) => v !== undefined && v !== null && v !== ""
         )
         : [];
+    const consentItems = buildConsentItems(attributes);
 
     return (
         <div className="rounded-2xl border border-border/60 bg-white overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
@@ -148,6 +150,27 @@ export function ContactDetails({ contact, onAddNew }: ContactDetailsProps) {
                     value={formatFullDate(contact.createdAt)}
                 />
 
+                {consentItems.length > 0 && (
+                    <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 space-y-3">
+                        <div className="flex items-center gap-1.5">
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                            <label className="text-[10.5px] uppercase tracking-wide font-semibold text-emerald-800">
+                                Consent and service proof
+                            </label>
+                        </div>
+                        <div className="space-y-2">
+                            {consentItems.map((item) => (
+                                <ConsentRow
+                                    key={item.label}
+                                    label={item.label}
+                                    value={item.value}
+                                    icon={item.icon}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* Attributes */}
                 <div>
                     <div className="flex items-center gap-1.5 mb-2">
@@ -231,6 +254,116 @@ function DetailRow({
             </div>
         </div>
     );
+}
+
+function ConsentRow({
+    label,
+    value,
+    icon,
+}: {
+    label: string;
+    value: string;
+    icon: React.ReactNode;
+}) {
+    return (
+        <div className="rounded-lg border border-emerald-200/70 bg-white px-3 py-2">
+            <div className="flex items-center gap-1.5 mb-1">
+                <span className="text-emerald-600">{icon}</span>
+                <p className="text-[10.5px] font-semibold uppercase tracking-wide text-emerald-700">
+                    {label}
+                </p>
+            </div>
+            <p className="text-[12px] text-foreground break-words leading-relaxed">
+                {value}
+            </p>
+        </div>
+    );
+}
+
+function buildConsentItems(
+    attributes: Array<[string, string | number | boolean | undefined]>
+): Array<{
+    label: string;
+    value: string;
+    icon: React.ReactNode;
+}> {
+    const map = new Map(
+        attributes.map(([key, value]) => [key, String(value ?? "")])
+    );
+    const items: Array<{
+        label: string;
+        value: string;
+        icon: React.ReactNode;
+    }> = [];
+
+    const optInSource = getFirstValue(map, ["whatsappOptInSource", "optInSource", "consentSource"]);
+    const optInAt = getFirstValue(map, ["whatsappOptInAt", "optInAt", "consentAt"]);
+    const serviceWindowEndsAt = getFirstValue(map, ["serviceWindowEndsAt", "serviceWindowUntil"]);
+    const lastInboundAt = getFirstValue(map, ["lastInboundAt", "lastReplyAt", "replyAt"]);
+    const optOutAt = getFirstValue(map, ["optOutAt", "unsubscribedAt"]);
+
+    if (optInSource) {
+        items.push({
+            label: "Opt-in source",
+            value: optInSource,
+            icon: <HandHeart className="w-3.5 h-3.5" />,
+        });
+    }
+    if (optInAt) {
+        items.push({
+            label: "Opt-in timestamp",
+            value: formatFlexibleDate(optInAt),
+            icon: <Clock3 className="w-3.5 h-3.5" />,
+        });
+    }
+    if (serviceWindowEndsAt) {
+        items.push({
+            label: "Service window ends",
+            value: formatFlexibleDate(serviceWindowEndsAt),
+            icon: <MessageSquareText className="w-3.5 h-3.5" />,
+        });
+    }
+    if (lastInboundAt) {
+        items.push({
+            label: "Last inbound reply",
+            value: formatFlexibleDate(lastInboundAt),
+            icon: <MessageSquareText className="w-3.5 h-3.5" />,
+        });
+    }
+    if (optOutAt) {
+        items.push({
+            label: "Opt-out timestamp",
+            value: formatFlexibleDate(optOutAt),
+            icon: <BellOff className="w-3.5 h-3.5" />,
+        });
+    }
+
+    return items;
+}
+
+function getFirstValue(
+    map: Map<string, string>,
+    keys: string[]
+): string | null {
+    for (const key of keys) {
+        const value = map.get(key)?.trim();
+        if (value) return value;
+    }
+    return null;
+}
+
+function formatFlexibleDate(value: string): string {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+        return value;
+    }
+    return parsed.toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    });
 }
 
 function formatFullDate(iso: string): string {

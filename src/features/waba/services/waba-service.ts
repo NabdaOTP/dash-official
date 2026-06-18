@@ -1,4 +1,5 @@
 import type {
+    WabaAppReviewGuide,
     WabaConnectUrl,
     WabaStatus,
 } from "../types";
@@ -46,6 +47,14 @@ export async function getWabaStatus(projectId: string): Promise<WabaStatus> {
         isConnected: result?.isConnected ?? false,
         accounts: Array.isArray(result?.accounts) ? result.accounts : [],
     };
+}
+
+export async function getWabaAppReviewGuide(
+    projectId: string
+): Promise<WabaAppReviewGuide> {
+    return api.get<WabaAppReviewGuide>(
+        `/projects/${projectId}/waba/app-review-guide`
+    );
 }
 
 /**

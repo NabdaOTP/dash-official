@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import {
-    X, Loader2, UserPlus, Plus, Trash2, ToggleLeft, ToggleRight,
+    X,
+    Loader2,
+    UserPlus,
+    Plus,
+    Trash2,
+    ToggleLeft,
+    ToggleRight,
+    Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -36,20 +43,15 @@ export function AddContactDialog({
     const [submitting, setSubmitting] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    
     useEffect(() => {
-        (async () => {
-            if (open) {
-            await setName("");
-            setPhone("");
-            setIsSubscribed(true);
-            setAttributes([]);
-            setSubmitting(false);
-            setErrors({});
-        }
-        })()
+        if (!open) return;
+        setName("");
+        setPhone("");
+        setIsSubscribed(true);
+        setAttributes([]);
+        setSubmitting(false);
+        setErrors({});
     }, [open]);
-
 
     if (!open) return null;
 
@@ -63,47 +65,69 @@ export function AddContactDialog({
     const updateAttribute = (
         id: string,
         field: "key" | "value",
-        val: string
+        value: string
     ) => {
         setAttributes((prev) =>
-            prev.map((a) => (a.id === id ? { ...a, [field]: val } : a))
+            prev.map((attr) => (attr.id === id ? { ...attr, [field]: value } : attr))
         );
     };
 
     const removeAttribute = (id: string) => {
-        setAttributes((prev) => prev.filter((a) => a.id !== id));
+        setAttributes((prev) => prev.filter((attr) => attr.id !== id));
+    };
+
+    const loadRecordingContact = () => {
+        setName("Amina Hassan");
+        setPhone("+201001234567");
+        setIsSubscribed(true);
+        setAttributes([
+            {
+                id: "optin-source",
+                key: "whatsappOptInSource",
+                value: "Website signup form",
+            },
+            {
+                id: "optin-time",
+                key: "whatsappOptInAt",
+                value: "2026-06-18T08:30:00+02:00",
+            },
+            {
+                id: "service-window",
+                key: "serviceWindowEndsAt",
+                value: "2026-06-18T10:30:00+02:00",
+            },
+        ]);
+        toast.success("Recording customer loaded");
     };
 
     const validate = (): boolean => {
-        const newErrors: Record<string, string> = {};
+        const nextErrors: Record<string, string> = {};
 
         const phoneError = validatePhoneNumber(phone);
-        if (phoneError) newErrors.phone = phoneError;
+        if (phoneError) nextErrors.phone = phoneError;
 
         if (name.trim().length > 100) {
-            newErrors.name = "Name must be 100 characters or fewer";
+            nextErrors.name = "Name must be 100 characters or fewer";
         }
 
-        // Validate attribute rows (both fields must be filled or both empty)
         for (const attr of attributes) {
             if ((attr.key.trim() === "") !== (attr.value.trim() === "")) {
-                newErrors.attributes =
+                nextErrors.attributes =
                     "All attribute rows must have both a key and a value";
                 break;
             }
         }
 
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+        setErrors(nextErrors);
+        return Object.keys(nextErrors).length === 0;
     };
 
     const buildAttributes = (): ContactAttributes | undefined => {
         const obj: ContactAttributes = {};
-        for (const a of attributes) {
-            const key = a.key.trim();
-            const value = a.value.trim();
+        for (const row of attributes) {
+            const key = row.key.trim();
+            const value = row.value.trim();
             if (!key || !value) continue;
-            // Coerce numeric strings to numbers
             obj[key] = /^\d+(\.\d+)?$/.test(value) ? Number(value) : value;
         }
         return Object.keys(obj).length > 0 ? obj : undefined;
@@ -113,7 +137,6 @@ export function AddContactDialog({
         if (!validate() || submitting) return;
         setSubmitting(true);
         try {
-            // Clean the phone — keep digits and an optional leading +
             const cleanPhone = phone.replace(/[^0-9+]/g, "");
             const contact = await addContact(projectId, {
                 phoneNumber: cleanPhone,
@@ -121,14 +144,13 @@ export function AddContactDialog({
                 attributes: buildAttributes(),
                 isSubscribed,
             });
-            toast.success(
-                `${contact.name?.trim() || "Contact"} added successfully`
-            );
+            toast.success(`${contact.name?.trim() || "Contact"} added successfully`);
             onAdded(contact);
             onClose();
         } catch (err) {
-            const msg = err instanceof Error ? err.message : "Failed to add contact";
-            toast.error(msg);
+            const message =
+                err instanceof Error ? err.message : "Failed to add contact";
+            toast.error(message);
             setSubmitting(false);
         }
     };
@@ -142,7 +164,6 @@ export function AddContactDialog({
                 className="w-full max-w-md max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Header */}
                 <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-border/40 shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-[#EDE9FE] flex items-center justify-center">
@@ -168,14 +189,8 @@ export function AddContactDialog({
                     </button>
                 </div>
 
-                {/* Body */}
                 <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
-                    {/* Name */}
-                    <Field
-                        label="Name"
-                        helper="Optional. Used as a friendly identifier."
-                        error={errors.name}
-                    >
+                    <Field label="Name" helper="Optional. Used as a friendly identifier." error={errors.name}>
                         <input
                             type="text"
                             value={name}
@@ -190,7 +205,6 @@ export function AddContactDialog({
                         />
                     </Field>
 
-                    {/* Phone */}
                     <Field
                         label="Phone Number"
                         helper="International format with country code"
@@ -206,16 +220,14 @@ export function AddContactDialog({
                             }}
                             disabled={submitting}
                             placeholder="+201001234567"
-                            className={`w-full h-10 px-3.5 rounded-lg border bg-background font-mono text-[13.5px] outline-none transition-colors focus:ring-2 focus:ring-[#7C3AED]/30 focus:border-[#7C3AED] disabled:opacity-50 ${errors.phone ? "border-red-300" : "border-border"
-                                }`}
+                            className={`w-full h-10 px-3.5 rounded-lg border bg-background font-mono text-[13.5px] outline-none transition-colors focus:ring-2 focus:ring-[#7C3AED]/30 focus:border-[#7C3AED] disabled:opacity-50 ${errors.phone ? "border-red-300" : "border-border"}`}
                         />
                     </Field>
 
-                    {/* Subscribed toggle */}
                     <div>
                         <button
                             type="button"
-                            onClick={() => setIsSubscribed((s) => !s)}
+                            onClick={() => setIsSubscribed((current) => !current)}
                             disabled={submitting}
                             className="cursor-pointer w-full rounded-lg border border-border bg-muted/20 p-3 flex items-center justify-between gap-3 hover:bg-muted/30 transition-colors disabled:opacity-50"
                         >
@@ -235,12 +247,28 @@ export function AddContactDialog({
                         </button>
                     </div>
 
-                    {/* Attributes */}
-                    <div>
-                        <div className="flex items-center justify-between mb-1.5">
-                            <label className="text-[12.5px] font-semibold text-foreground">
-                                Attributes
-                            </label>
+                    <div className="space-y-2">
+                        <div className="flex items-start justify-between gap-3 flex-wrap">
+                            <div>
+                                <label className="text-[12.5px] font-semibold text-foreground">
+                                    Attributes
+                                </label>
+                                <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
+                                    Custom data like opt-in source and timestamps for the recording flow.
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={loadRecordingContact}
+                                disabled={submitting}
+                                className="cursor-pointer h-8 px-3 rounded-md text-[11px] font-semibold text-[#7C3AED] hover:bg-[#EDE9FE]/40 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                            >
+                                <Sparkles className="w-3 h-3" />
+                                Load recording customer
+                            </button>
+                        </div>
+
+                        <div className="flex items-center justify-between">
                             <button
                                 type="button"
                                 onClick={addAttribute}
@@ -251,25 +279,22 @@ export function AddContactDialog({
                                 Add attribute
                             </button>
                         </div>
-                        <p className="text-[11px] text-muted-foreground mb-2 leading-relaxed">
-                            Custom data like city or segment for targeting campaigns.
-                        </p>
 
                         {attributes.length === 0 ? (
                             <div className="rounded-lg border border-dashed border-border bg-muted/20 px-3 py-3 text-center">
                                 <p className="text-[11.5px] text-muted-foreground">
-                                    No attributes — add some to enable audience filtering
+                                    No attributes - add some to enable audience filtering
                                 </p>
                             </div>
                         ) : (
                             <div className="space-y-2">
-                                {attributes.map((attr) => (
-                                    <div key={attr.id} className="flex items-center gap-2">
+                                {attributes.map((attribute) => (
+                                    <div key={attribute.id} className="flex items-center gap-2">
                                         <input
                                             type="text"
-                                            value={attr.key}
+                                            value={attribute.key}
                                             onChange={(e) =>
-                                                updateAttribute(attr.id, "key", e.target.value)
+                                                updateAttribute(attribute.id, "key", e.target.value)
                                             }
                                             disabled={submitting}
                                             placeholder="city"
@@ -280,9 +305,9 @@ export function AddContactDialog({
                                         </span>
                                         <input
                                             type="text"
-                                            value={attr.value}
+                                            value={attribute.value}
                                             onChange={(e) =>
-                                                updateAttribute(attr.id, "value", e.target.value)
+                                                updateAttribute(attribute.id, "value", e.target.value)
                                             }
                                             disabled={submitting}
                                             placeholder="Dubai"
@@ -290,7 +315,7 @@ export function AddContactDialog({
                                         />
                                         <button
                                             type="button"
-                                            onClick={() => removeAttribute(attr.id)}
+                                            onClick={() => removeAttribute(attribute.id)}
                                             disabled={submitting}
                                             className="cursor-pointer w-9 h-9 rounded-lg text-red-600 hover:bg-red-50 flex items-center justify-center transition-colors disabled:opacity-50 shrink-0"
                                             aria-label="Remove attribute"
@@ -310,7 +335,6 @@ export function AddContactDialog({
                     </div>
                 </div>
 
-                {/* Footer */}
                 <div className="flex items-center justify-end gap-2 px-5 sm:px-6 py-4 bg-muted/30 border-t border-border/40 shrink-0">
                     <button
                         type="button"
@@ -327,7 +351,7 @@ export function AddContactDialog({
                         className="cursor-pointer h-9 px-4 rounded-lg text-[13px] font-medium text-white bg-[#7C3AED] hover:bg-[#6D28D9] active:scale-[0.99] transition-all disabled:opacity-60 flex items-center gap-2"
                     >
                         {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                        {submitting ? "Adding…" : "Add Contact"}
+                        {submitting ? "Adding..." : "Add Contact"}
                     </button>
                 </div>
             </div>
@@ -335,9 +359,12 @@ export function AddContactDialog({
     );
 }
 
-// ─────────────────────────────────────────────────────────────
 function Field({
-    label, helper, error, required, children,
+    label,
+    helper,
+    error,
+    required,
+    children,
 }: {
     label: string;
     helper?: string;

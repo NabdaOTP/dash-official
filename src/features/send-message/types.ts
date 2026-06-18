@@ -19,6 +19,15 @@ export interface SendMessageResponse {
     status?: string;
 }
 
+export interface MessageSendEvidence {
+    endpoint: string;
+    method: "POST";
+    requestBody: SendMessageRequest;
+    requestCurl: string;
+    redactedToken: string;
+    responseBody: string;
+}
+
 /**
  * Result kept in component state for UI display.
  */
@@ -29,4 +38,5 @@ export interface MessageSendResult {
     variables?: string[];
     sentAt: Date;
     messageId?: string;
+    evidence?: MessageSendEvidence;
 }

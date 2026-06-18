@@ -88,6 +88,22 @@ export function CreateTemplateDialog({
         setStep("builder");
     };
 
+    const loadRecordingTemplate = () => {
+        setForm({
+            name: "promo_update_midyear",
+            category: "UTILITY",
+            language: "en_US",
+            headerText: "Mid-year update",
+            bodyText:
+                "Hello {{1}}, your account is now connected and your WhatsApp templates are ready for review.",
+            footerText: "Powered by Nabda WhatsApp",
+            includeCopyCodeButton: false,
+            copyCodeButtonText: "Copy Code",
+        });
+        setStep("builder");
+        toast.success("Recording template loaded");
+    };
+
     const updateForm = <K extends keyof TemplateFormState>(
         key: K,
         value: TemplateFormState[K]
@@ -194,6 +210,24 @@ export function CreateTemplateDialog({
                 <div className="flex-1 overflow-y-auto">
                     {step === "presets" ? (
                         <div className="p-5 sm:p-6 space-y-3">
+                            <div className="rounded-2xl border border-border/60 bg-muted/20 p-4 flex items-start justify-between gap-3 flex-wrap">
+                                <div>
+                                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                                        Recording helper
+                                    </p>
+                                    <p className="mt-1 text-[12.5px] leading-relaxed text-foreground">
+                                        Load a demo template if you want a fast path through the create flow during recording.
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={loadRecordingTemplate}
+                                    className="cursor-pointer h-8 px-3 rounded-md text-[11px] font-semibold text-[#7C3AED] bg-[#EDE9FE]/60 hover:bg-[#EDE9FE] transition-colors"
+                                >
+                                    Load recording template
+                                </button>
+                            </div>
+
                             <PresetCard
                                 icon={<Sparkles className="w-5 h-5 text-[#7C3AED]" />}
                                 title={tPresets("otp_with_button.title")}
